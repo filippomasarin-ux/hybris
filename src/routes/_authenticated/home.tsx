@@ -77,7 +77,7 @@ function HomePage() {
     <AppShell>
       <header className="px-5 pt-8 pb-4">
         <p className="label-caps text-muted-foreground">Ciao</p>
-        <h1 className="text-2xl">{profile?.nome?.split(" ")[0] ?? "Atleta"} 👋</h1>
+        <h1 className="text-2xl">{profile?.nome?.split(" ")[0] ?? "Atleta"}</h1>
       </header>
 
       <div className="space-y-4 px-5 pb-8">
@@ -92,7 +92,11 @@ function HomePage() {
                 <div>
                   <p className="label-caps text-muted-foreground">Come stai oggi</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-2xl">{stato.emoji}</span>
+                    <span
+                      aria-hidden
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: stato.color }}
+                    />
                     <span className="text-xl font-semibold">{stato.label}</span>
                   </div>
                   <p className="mt-2 text-sm text-muted-foreground">{stato.message}</p>
@@ -159,12 +163,24 @@ function HomePage() {
               )}
             </section>
 
-            <section className="rounded-2xl border border-dashed border-border p-5 text-center">
-              <p className="text-sm font-medium">💬 Il Coach AI arriva presto</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Riceverai consigli personalizzati basati sulle tue attività.
-              </p>
-            </section>
+            <a
+              href="/coach"
+              className="block rounded-2xl border border-border bg-surface p-5 transition-all hover:border-ring hover:shadow-card"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-accent-foreground"
+                  style={{ backgroundColor: "var(--color-accent)" }}
+                >
+                  <CoachSparkle />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">Chiedi al Coach AI</p>
+                  <p className="text-xs text-muted-foreground">Piani, recupero, nutrizione, analisi</p>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </div>
+            </a>
           </>
         )}
       </div>
@@ -227,7 +243,7 @@ function Skeleton({ h }: { h: number }) {
 
 function computeStato(attivita: Attivita[]) {
   if (attivita.length === 0) {
-    return { emoji: "🟢", label: "Pronto", message: "Aggiungi la tua prima attività per ricevere consigli personalizzati." };
+    return { color: "var(--color-accent)", label: "Pronto", message: "Aggiungi la tua prima attività per ricevere consigli personalizzati." };
   }
   const now = Date.now();
   const ultima = attivita[0];
@@ -235,12 +251,21 @@ function computeStato(attivita: Attivita[]) {
   const ultimi4gg = attivita.filter((a) => (now - new Date(a.data).getTime()) / 86400000 <= 4);
 
   if ((oreUltima < 24 && (ultima.rpe ?? 0) >= 8) || ultimi4gg.length >= 3) {
-    return { emoji: "🔴", label: "Affaticato", message: "Hai accumulato carico. Privilegia recupero o sessioni leggere." };
+    return { color: "var(--color-destructive)", label: "Affaticato", message: "Hai accumulato carico. Privilegia recupero o sessioni leggere." };
   }
   if (oreUltima >= 48 && (ultima.rpe ?? 6) <= 6) {
-    return { emoji: "🟢", label: "Fresco", message: "Hai riposato — sei pronto per una sessione di qualità." };
+    return { color: "var(--color-accent)", label: "Fresco", message: "Hai riposato — sei pronto per una sessione di qualità." };
   }
-  return { emoji: "🟡", label: "Normale", message: "Forma stabile, continua con il tuo piano." };
+  return { color: "var(--color-warning)", label: "Normale", message: "Forma stabile, continua con il tuo piano." };
+}
+
+function CoachSparkle() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+      <path d="M19 14l.8 2.4 2.2.6-2.2.6-.8 2.4-.8-2.4-2.2-.6 2.2-.6.8-2.4z" />
+    </svg>
+  );
 }
 
 function formatRelDay(iso: string) {

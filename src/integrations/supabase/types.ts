@@ -73,6 +73,130 @@ export type Database = {
           },
         ]
       }
+      club_announcements: {
+        Row: {
+          author_id: string
+          club_id: string
+          contenuto: string
+          created_at: string
+          id: string
+          titolo: string | null
+        }
+        Insert: {
+          author_id: string
+          club_id: string
+          contenuto: string
+          created_at?: string
+          id?: string
+          titolo?: string | null
+        }
+        Update: {
+          author_id?: string
+          club_id?: string
+          contenuto?: string
+          created_at?: string
+          id?: string
+          titolo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_announcements_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_members: {
+        Row: {
+          club_id: string
+          created_at: string
+          id: string
+          ruolo: string
+          user_id: string
+        }
+        Insert: {
+          club_id: string
+          created_at?: string
+          id?: string
+          ruolo?: string
+          user_id: string
+        }
+        Update: {
+          club_id?: string
+          created_at?: string
+          id?: string
+          ruolo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_members_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clubs: {
+        Row: {
+          codice_invito: string
+          created_at: string
+          created_by: string
+          descrizione: string | null
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          codice_invito: string
+          created_at?: string
+          created_by: string
+          descrizione?: string | null
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          codice_invito?: string
+          created_at?: string
+          created_by?: string
+          descrizione?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coach_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          parts: Json | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           anni_esperienza: number | null
@@ -135,7 +259,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_club_captain: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_club_member: {
+        Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -70,6 +70,7 @@ export function AddActivityDialog({
             <div className="flex flex-wrap gap-2">
               {SPORTS.map((s) => {
                 const sel = sport === s.key;
+                const Icon = s.icon;
                 return (
                   <button
                     key={s.key} type="button" onClick={() => setSport(s.key)}
@@ -80,7 +81,7 @@ export function AddActivityDialog({
                         : { backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }
                     }
                   >
-                    <span>{s.emoji}</span> {s.label}
+                    <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {s.label}
                   </button>
                 );
               })}

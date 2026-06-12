@@ -15,14 +15,15 @@ export function SportChip({
   sport,
   selected = false,
   onClick,
-  emoji = true,
+  showIcon = true,
 }: {
   sport: string;
   selected?: boolean;
   onClick?: () => void;
-  emoji?: boolean;
+  showIcon?: boolean;
 }) {
   const info = sportInfo(sport);
+  const Icon = info.icon;
   return (
     <button
       type="button"
@@ -34,7 +35,7 @@ export function SportChip({
           : { backgroundColor: "var(--color-surface)", color: "var(--color-foreground)", borderColor: "var(--color-border)" }
       }
     >
-      {emoji && <span aria-hidden>{info.emoji}</span>}
+      {showIcon && <Icon className="h-3.5 w-3.5" strokeWidth={2} />}
       <span>{info.label}</span>
     </button>
   );

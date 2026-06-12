@@ -183,6 +183,7 @@ function OnboardingPage() {
             <div className="flex flex-wrap gap-2">
               {SPORTS.map((s) => {
                 const selected = form.sport_secondari.includes(s.key);
+                const Icon = s.icon;
                 return (
                   <button
                     key={s.key} type="button" onClick={() => toggleSport(s.key)}
@@ -193,7 +194,7 @@ function OnboardingPage() {
                         : { backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }
                     }
                   >
-                    <span>{s.emoji}</span> {s.label}
+                    <Icon className="h-4 w-4" strokeWidth={2} /> {s.label}
                   </button>
                 );
               })}
@@ -205,6 +206,7 @@ function OnboardingPage() {
                 <div className="flex flex-wrap gap-2">
                   {form.sport_secondari.map((k) => {
                     const s = SPORTS.find((x) => x.key === k)!;
+                    const Icon = s.icon;
                     const isPrimary = form.sport_primario === k;
                     return (
                       <button
@@ -216,7 +218,7 @@ function OnboardingPage() {
                             : { borderColor: "transparent", backgroundColor: "var(--color-muted)", color: "var(--color-muted-foreground)" }
                         }
                       >
-                        <span>{s.emoji}</span> {s.label}
+                        <Icon className="h-4 w-4" strokeWidth={2} /> {s.label}
                       </button>
                     );
                   })}
@@ -236,13 +238,19 @@ function OnboardingPage() {
             <div className="space-y-3">
               {OBIETTIVI.map((o) => {
                 const selected = form.obiettivo_tipo === o.key;
+                const Icon = o.icon;
                 return (
                   <button
                     key={o.key} type="button" onClick={() => update("obiettivo_tipo", o.key)}
                     className="flex w-full items-start gap-4 rounded-xl border-2 bg-surface p-4 text-left transition-all"
                     style={{ borderColor: selected ? "var(--color-accent)" : "var(--color-border)" }}
                   >
-                    <span className="text-2xl">{o.emoji}</span>
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: selected ? "var(--color-accent)" : "var(--color-muted)", color: selected ? "var(--color-accent-foreground)" : "var(--color-foreground)" }}
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={1.8} />
+                    </span>
                     <div className="flex-1">
                       <div className="font-semibold">{o.titolo}</div>
                       <div className="mt-0.5 text-sm text-muted-foreground">{o.desc}</div>
@@ -321,24 +329,22 @@ function OnboardingPage() {
         {step === 5 && (
           <section className="space-y-6">
             <div>
-              <h1 className="text-2xl">Connetti Strava</h1>
+              <h1 className="text-2xl">Tutto pronto</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Importeremo automaticamente i tuoi allenamenti.
+                Da ora il Coach AI conoscerà i tuoi dati e ti darà consigli su misura.
               </p>
             </div>
 
             <div className="rounded-xl border border-border bg-surface p-6">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                ⏳ Disponibile presto
-              </div>
-              <p className="text-sm text-muted-foreground">
-                La connessione a Strava sarà attiva nella prossima versione. Per ora puoi
-                aggiungere le tue attività manualmente — bastano pochi secondi.
+              <p className="label-caps text-muted-foreground">Strava</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                La connessione a Strava sarà attiva a breve. Per ora puoi
+                aggiungere le tue attività manualmente in pochi secondi.
               </p>
             </div>
 
             <div className="rounded-xl bg-[oklch(0.97_0.02_175)] p-5 text-sm">
-              <div className="font-semibold text-foreground">Tutto pronto, {form.nome.split(" ")[0] || "atleta"}!</div>
+              <div className="font-semibold text-foreground">Benvenuto, {form.nome.split(" ")[0] || "atleta"}.</div>
               <p className="mt-1 text-muted-foreground">
                 Hai impostato {form.giorni_count} giorni di allenamento per
                 {" "}{OBIETTIVI.find((o) => o.key === form.obiettivo_tipo)?.titolo.toLowerCase()}.

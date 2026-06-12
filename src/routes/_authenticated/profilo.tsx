@@ -91,13 +91,14 @@ function ProfiloPage() {
                   .map((k) => {
                     const s = SPORTS.find((x) => x.key === k);
                     if (!s) return null;
+                    const Icon = s.icon;
                     return (
                       <span
                         key={k}
                         className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
                         style={{ backgroundColor: `color-mix(in oklch, ${s.color} 14%, transparent)`, color: s.color }}
                       >
-                        {s.emoji} {s.label}
+                        <Icon className="h-3 w-3" strokeWidth={2} /> {s.label}
                       </span>
                     );
                   })}
@@ -107,11 +108,10 @@ function ProfiloPage() {
             <section className="mt-8 space-y-2">
               <Row
                 label="Obiettivo"
-                value={obiettivo ? `${obiettivo.emoji} ${obiettivo.titolo}` : "Non impostato"}
+                value={obiettivo ? obiettivo.titolo : "Non impostato"}
                 onClick={() => setEditGoal(true)}
               />
               <Row label="Strava" value="Non connesso" hint="In arrivo" />
-              <Row label="Il mio club" value="Nessun club" hint="In arrivo" />
             </section>
 
             <button
@@ -131,13 +131,19 @@ function ProfiloPage() {
             <div className="space-y-2">
               {OBIETTIVI.map((o) => {
                 const sel = p?.obiettivo_tipo === o.key;
+                const Icon = o.icon;
                 return (
                   <button
                     key={o.key} onClick={() => updateGoal(o.key)}
                     className="flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition-colors"
                     style={{ borderColor: sel ? "var(--color-accent)" : "var(--color-border)" }}
                   >
-                    <span className="text-xl">{o.emoji}</span>
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-full"
+                      style={{ backgroundColor: sel ? "var(--color-accent)" : "var(--color-muted)", color: sel ? "var(--color-accent-foreground)" : "var(--color-foreground)" }}
+                    >
+                      <Icon className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
                     <span className="flex-1 text-sm font-medium">{o.titolo}</span>
                   </button>
                 );
