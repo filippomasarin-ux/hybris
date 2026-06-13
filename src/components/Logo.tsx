@@ -1,9 +1,15 @@
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <div className={`inline-flex items-center gap-1.5 ${className}`}>
-      <span className="text-xl font-semibold tracking-tight text-foreground">FitCoach</span>
-      <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
-        AI
+    <div className={`inline-flex items-center gap-2 ${className}`}>
+      <span
+        aria-hidden
+        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[13px] font-bold text-white"
+        style={{ background: "linear-gradient(135deg, var(--color-accent) 0%, #6d28d9 100%)" }}
+      >
+        R
+      </span>
+      <span className="text-xl font-semibold tracking-tight text-foreground">
+        RunHub<span className="text-accent"> AI</span>
       </span>
     </div>
   );

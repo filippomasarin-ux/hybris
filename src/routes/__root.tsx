@@ -79,9 +79,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { title: "FitCoach — Il tuo coach personale" },
-      { name: "description", content: "FitCoach: l'app AI che ti allena ogni giorno. Per atleti e run club." },
-      { name: "theme-color", content: "#1A1A2E" },
+      { title: "RunHub AI — Il tuo coach personale" },
+      { name: "description", content: "RunHub AI: l'app AI che ti allena ogni giorno. Per atleti e run club." },
+      { name: "theme-color", content: "#0B0B12" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
