@@ -111,8 +111,6 @@ function HomePage() {
               </div>
             </section>
 
-            <WeeklyPlanCard />
-
             <section className="rounded-2xl bg-surface p-5 shadow-card">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-base font-semibold">Ultime attività</h2>
