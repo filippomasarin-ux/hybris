@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, MessageCircle, Users, User } from "lucide-react";
 import type { ReactNode } from "react";
+import { Logo } from "./Logo";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
@@ -16,12 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-60">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 border-r border-border bg-surface md:flex md:flex-col">
         <div className="flex h-16 items-center px-6">
-          <Link to="/home" className="inline-flex items-center gap-1.5">
-            <span className="text-xl font-semibold tracking-tight">FitCoach</span>
-            <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
-              AI
-            </span>
-          </Link>
+          <Link to="/home"><Logo /></Link>
         </div>
         <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
           {tabs.map((t) => {
@@ -33,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
                 style={
                   active
-                    ? { backgroundColor: "var(--color-primary)", color: "var(--color-primary-foreground)" }
+                    ? { backgroundColor: "color-mix(in oklab, var(--color-accent) 18%, transparent)", color: "var(--color-foreground)" }
                     : { color: "var(--color-muted-foreground)" }
                 }
               >
@@ -44,6 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
       </aside>
+
 
       <main className="mx-auto max-w-2xl">{children}</main>
 

@@ -232,7 +232,7 @@ function OnboardingPage() {
           <section className="space-y-6">
             <div>
               <h1 className="text-2xl">Il tuo obiettivo</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Cosa vuoi raggiungere con FitCoach?</p>
+              <p className="mt-1 text-sm text-muted-foreground">Cosa vuoi raggiungere con RunHub AI?</p>
             </div>
 
             <div className="space-y-3">

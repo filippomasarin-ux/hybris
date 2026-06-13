@@ -170,7 +170,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Continuando accetti i termini di servizio di FitCoach.
+          Continuando accetti i termini di servizio di RunHub AI.
         </p>
       </div>
     </div>
