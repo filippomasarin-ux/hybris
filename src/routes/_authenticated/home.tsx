@@ -35,15 +35,17 @@ function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [attivita, setAttivita] = useState<Attivita[]>([]);
+  const [analytics, setAnalytics] = useState<AttivitaForAnalytics[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editRpe, setEditRpe] = useState<{ id: string; value: number } | null>(null);
+  const fetchAnalytics = useServerFn(getAttivitaAnalytics);
 
   const load = async () => {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     setUserId(auth.user.id);
-    const [{ data: p }, { data: a }] = await Promise.all([
+    const [{ data: p }, { data: a }, an] = await Promise.all([
       supabase.from("profiles").select("nome").eq("id", auth.user.id).maybeSingle(),
       supabase
         .from("attivita")
@@ -51,14 +53,17 @@ function HomePage() {
         .eq("user_id", auth.user.id)
         .order("data", { ascending: false })
         .limit(20),
+      fetchAnalytics().catch(() => [] as AttivitaForAnalytics[]),
     ]);
     setProfile(p);
     setAttivita(a ?? []);
+    setAnalytics(an as AttivitaForAnalytics[]);
     setLoading(false);
   };
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stato = useMemo(() => computeStato(attivita), [attivita]);
