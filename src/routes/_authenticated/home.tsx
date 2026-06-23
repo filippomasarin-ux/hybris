@@ -122,7 +122,21 @@ function HomePage() {
               </div>
             </section>
 
+            {/* Analytics avanzate */}
+            {analytics === null ? (
+              <div className="space-y-4">
+                <Skeleton h={220} /> <Skeleton h={240} /> <Skeleton h={260} />
+              </div>
+            ) : (
+              <>
+                <TrainingLoadCard attivita={analytics} />
+                <VolumeCard attivita={analytics} />
+                <AerobicoCard attivita={analytics} />
+              </>
+            )}
+
             <section className="rounded-2xl bg-surface p-5 shadow-card">
+
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-base font-semibold">Ultime attività</h2>
                 {attivita.length > 3 && (
