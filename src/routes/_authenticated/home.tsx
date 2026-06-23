@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { Plus } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { SportDot } from "@/components/SportChip";
@@ -8,6 +9,11 @@ import { sportInfo } from "@/lib/sports";
 import { AddActivityDialog } from "@/components/AddActivityDialog";
 import { toast } from "sonner";
 import { WeeklyPlanCard } from "@/components/WeeklyPlanCard";
+import { TrainingLoadCard } from "@/components/TrainingLoadCard";
+import { VolumeCard } from "@/components/VolumeCard";
+import { AerobicoCard } from "@/components/AerobicoCard";
+import { getAttivitaAnalytics } from "@/lib/attivita.functions";
+import type { AttivitaForAnalytics } from "@/lib/analytics";
 
 export const Route = createFileRoute("/_authenticated/home")({
   ssr: false,
@@ -29,15 +35,17 @@ function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [attivita, setAttivita] = useState<Attivita[]>([]);
+  const [analytics, setAnalytics] = useState<AttivitaForAnalytics[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editRpe, setEditRpe] = useState<{ id: string; value: number } | null>(null);
+  const fetchAnalytics = useServerFn(getAttivitaAnalytics);
 
   const load = async () => {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     setUserId(auth.user.id);
-    const [{ data: p }, { data: a }] = await Promise.all([
+    const [{ data: p }, { data: a }, an] = await Promise.all([
       supabase.from("profiles").select("nome").eq("id", auth.user.id).maybeSingle(),
       supabase
         .from("attivita")
@@ -45,14 +53,17 @@ function HomePage() {
         .eq("user_id", auth.user.id)
         .order("data", { ascending: false })
         .limit(20),
+      fetchAnalytics().catch(() => [] as AttivitaForAnalytics[]),
     ]);
     setProfile(p);
     setAttivita(a ?? []);
+    setAnalytics(an as AttivitaForAnalytics[]);
     setLoading(false);
   };
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stato = useMemo(() => computeStato(attivita), [attivita]);
@@ -111,7 +122,21 @@ function HomePage() {
               </div>
             </section>
 
+            {/* Analytics avanzate */}
+            {analytics === null ? (
+              <div className="space-y-4">
+                <Skeleton h={220} /> <Skeleton h={240} /> <Skeleton h={260} />
+              </div>
+            ) : (
+              <>
+                <TrainingLoadCard attivita={analytics} />
+                <VolumeCard attivita={analytics} />
+                <AerobicoCard attivita={analytics} />
+              </>
+            )}
+
             <section className="rounded-2xl bg-surface p-5 shadow-card">
+
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-base font-semibold">Ultime attività</h2>
                 {attivita.length > 3 && (
@@ -164,7 +189,7 @@ function HomePage() {
               )}
             </section>
 
-            <WeeklyPlanCard />
+            <WeeklyPlanCard attivita={analytics ?? undefined} />
 
 
             <a

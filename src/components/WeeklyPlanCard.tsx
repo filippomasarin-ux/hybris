@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Sparkles, RefreshCw, Moon, Clock, Flame, MapPin, Activity } from "lucide-react";
+import { Sparkles, RefreshCw, Moon, Clock, Flame, MapPin, Activity, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { generaPianoSettimanale, getPianoCorrente, type PianoSettimanale } from "@/lib/piani.functions";
 import { sportInfo } from "@/lib/sports";
+import { calcolaCarico, labelTsb, TSB_COLORI, type AttivitaForAnalytics } from "@/lib/analytics";
 
 type Piano = PianoSettimanale & { settimana_inizio: string };
 
@@ -31,7 +32,7 @@ function zonaColor(zona?: string): string {
   return "var(--color-muted-foreground)";
 }
 
-export function WeeklyPlanCard() {
+export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[] }) {
   const fetchPiano = useServerFn(getPianoCorrente);
   const genPiano = useServerFn(generaPianoSettimanale);
   const [piano, setPiano] = useState<Piano | null>(null);
@@ -104,6 +105,18 @@ export function WeeklyPlanCard() {
   const stato = STATO_STYLE[piano.stato_forma_rilevato] ?? STATO_STYLE.normale;
   const carico = CARICO_STYLE[piano.carico_settimana] ?? CARICO_STYLE.medio;
 
+  const tsbData = useMemo(() => {
+    if (!attivita || attivita.length === 0) return null;
+    const { tsb } = calcolaCarico(attivita);
+    const info = labelTsb(tsb);
+    return { tsb, info, col: TSB_COLORI[info.colore] };
+  }, [attivita]);
+
+  const warningCarico =
+    tsbData && tsbData.tsb < -10 && piano.stato_forma_rilevato === "fresco"
+      ? "Il tuo carico recente è elevato — segui il piano con attenzione."
+      : null;
+
   const totMinuti = piano.giorni.reduce((s, g) => s + (g.riposo ? 0 : g.durata_min ?? 0), 0);
   const totKm = piano.giorni.reduce((s, g) => s + (g.distanza_km ?? 0), 0);
   const sessioni = piano.giorni.filter((g) => !g.riposo).length;
@@ -142,7 +155,27 @@ export function WeeklyPlanCard() {
         >
           {carico.label}
         </span>
+        {tsbData && (
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
+            style={{ background: tsbData.col.bg, color: tsbData.col.text }}
+            title="Training Stress Balance: bilanciamento forma/carico"
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: tsbData.col.dot }} />
+            TSB {tsbData.tsb > 0 ? "+" : ""}{tsbData.tsb.toFixed(0)} · {tsbData.info.label}
+          </span>
+        )}
       </div>
+
+      {warningCarico && (
+        <div
+          className="mb-3 flex items-start gap-2 rounded-lg border px-3 py-2 text-[11px]"
+          style={{ borderColor: "rgba(234,179,8,0.4)", background: "rgba(234,179,8,0.08)", color: "#a16207" }}
+        >
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>{warningCarico}</span>
+        </div>
+      )}
 
       {/* Calendar strip */}
       <div className="grid grid-cols-7 gap-1.5">
