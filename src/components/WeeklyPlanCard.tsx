@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Sparkles, RefreshCw, Moon, Clock, Flame } from "lucide-react";
+import { Sparkles, RefreshCw, Moon, Clock, Flame, MapPin, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { generaPianoSettimanale, getPianoCorrente, type PianoSettimanale } from "@/lib/piani.functions";
 import { sportInfo } from "@/lib/sports";
@@ -8,6 +8,28 @@ import { sportInfo } from "@/lib/sports";
 type Piano = PianoSettimanale & { settimana_inizio: string };
 
 const GIORNI_BREVI = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+
+const STATO_STYLE: Record<string, { label: string; dot: string; bg: string; text: string }> = {
+  fresco: { label: "Fresco", dot: "#10b981", bg: "rgba(16,185,129,0.12)", text: "#10b981" },
+  normale: { label: "Normale", dot: "#eab308", bg: "rgba(234,179,8,0.12)", text: "#eab308" },
+  affaticato: { label: "Affaticato", dot: "#ef4444", bg: "rgba(239,68,68,0.12)", text: "#ef4444" },
+};
+
+const CARICO_STYLE: Record<string, { label: string; bg: string; text: string }> = {
+  leggero: { label: "Settimana leggera", bg: "rgba(20,184,166,0.12)", text: "#14b8a6" },
+  medio: { label: "Settimana media", bg: "rgba(59,130,246,0.12)", text: "#3b82f6" },
+  intenso: { label: "Settimana intensa", bg: "rgba(249,115,22,0.12)", text: "#f97316" },
+};
+
+function zonaColor(zona?: string): string {
+  if (!zona) return "var(--color-muted-foreground)";
+  if (zona.startsWith("Z1") || zona === "Riposo" || zona === "Mobilità") return "#64748b";
+  if (zona.startsWith("Z2")) return "#10b981";
+  if (zona.startsWith("Z3")) return "#eab308";
+  if (zona.startsWith("Z4") || zona === "HIIT") return "#ef4444";
+  if (zona === "Forza") return "#a855f7";
+  return "var(--color-muted-foreground)";
+}
 
 export function WeeklyPlanCard() {
   const fetchPiano = useServerFn(getPianoCorrente);
@@ -79,6 +101,13 @@ export function WeeklyPlanCard() {
   const info = sportInfo(giornoSel?.sport);
   const Icon = info.icon;
 
+  const stato = STATO_STYLE[piano.stato_forma_rilevato] ?? STATO_STYLE.normale;
+  const carico = CARICO_STYLE[piano.carico_settimana] ?? CARICO_STYLE.medio;
+
+  const totMinuti = piano.giorni.reduce((s, g) => s + (g.riposo ? 0 : g.durata_min ?? 0), 0);
+  const totKm = piano.giorni.reduce((s, g) => s + (g.distanza_km ?? 0), 0);
+  const sessioni = piano.giorni.filter((g) => !g.riposo).length;
+
   return (
     <section className="rounded-2xl bg-surface p-5 shadow-card">
       <div className="mb-3 flex items-center justify-between">
@@ -98,17 +127,35 @@ export function WeeklyPlanCard() {
         Settimana del {formatDate(piano.settimana_inizio)}
       </p>
 
+      {/* Stato forma + carico */}
+      <div className="mb-3 flex flex-wrap items-center gap-1.5">
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
+          style={{ background: stato.bg, color: stato.text }}
+        >
+          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: stato.dot }} />
+          {stato.label}
+        </span>
+        <span
+          className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium"
+          style={{ background: carico.bg, color: carico.text }}
+        >
+          {carico.label}
+        </span>
+      </div>
+
       {/* Calendar strip */}
       <div className="grid grid-cols-7 gap-1.5">
         {piano.giorni.map((g, i) => {
           const isSel = i === selected;
           const gInfo = sportInfo(g.sport);
           const today = isToday(piano.settimana_inizio, i);
+          const zCol = zonaColor(g.zona_intensita);
           return (
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className="group flex flex-col items-center gap-1.5 rounded-xl border p-2 transition-all"
+              className="group flex flex-col items-center gap-1 rounded-xl border p-2 transition-all"
               style={{
                 borderColor: isSel ? "var(--color-accent)" : "var(--color-border)",
                 background: isSel ? "color-mix(in oklab, var(--color-accent) 14%, var(--color-surface))" : "transparent",
@@ -128,6 +175,15 @@ export function WeeklyPlanCard() {
                   style={{ backgroundColor: gInfo.color }}
                 />
               )}
+              {g.zona_intensita && !g.riposo ? (
+                <span
+                  className="mt-0.5 max-w-full truncate rounded-sm px-1 text-[8px] font-semibold uppercase tracking-wide"
+                  style={{ color: zCol, background: `color-mix(in oklab, ${zCol} 14%, transparent)` }}
+                  title={g.zona_intensita}
+                >
+                  {g.zona_intensita.split(" ")[0]}
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -143,7 +199,9 @@ export function WeeklyPlanCard() {
               </div>
               <div>
                 <p className="text-sm font-semibold">Giorno di riposo</p>
-                <p className="text-xs text-muted-foreground">Recupero attivo o stretching leggero.</p>
+                <p className="text-xs text-muted-foreground">
+                  {giornoSel.motivo_riposo || "Recupero attivo o stretching leggero."}
+                </p>
               </div>
             </div>
           ) : (
@@ -161,19 +219,41 @@ export function WeeklyPlanCard() {
                 </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2">
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  <div className="leading-tight">
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-2.5 py-2">
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 leading-tight">
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Durata</p>
-                    <p className="text-sm font-semibold tabular-nums">{giornoSel.durata_min} min</p>
+                    <p className="text-sm font-semibold tabular-nums">{giornoSel.durata_min}'</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2">
-                  <Flame className="h-3.5 w-3.5 text-muted-foreground" />
-                  <div className="leading-tight">
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Intensità</p>
-                    <p className="text-sm font-semibold tabular-nums">RPE {giornoSel.intensita_rpe}</p>
+                {giornoSel.distanza_km ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-2.5 py-2">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 leading-tight">
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Distanza</p>
+                      <p className="text-sm font-semibold tabular-nums">{giornoSel.distanza_km} km</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-2.5 py-2">
+                    <Flame className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 leading-tight">
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">RPE</p>
+                      <p className="text-sm font-semibold tabular-nums">{giornoSel.intensita_rpe}/10</p>
+                    </div>
+                  </div>
+                )}
+                <div
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-2"
+                  style={{ background: `color-mix(in oklab, ${zonaColor(giornoSel.zona_intensita)} 12%, transparent)` }}
+                >
+                  <Activity className="h-3.5 w-3.5 shrink-0" style={{ color: zonaColor(giornoSel.zona_intensita) }} />
+                  <div className="min-w-0 leading-tight">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Zona</p>
+                    <p className="truncate text-sm font-semibold" style={{ color: zonaColor(giornoSel.zona_intensita) }}>
+                      {giornoSel.zona_intensita}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -183,6 +263,22 @@ export function WeeklyPlanCard() {
           )}
         </div>
       )}
+
+      {/* Totali settimana */}
+      <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-border px-3 py-2.5">
+        <div className="text-center">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Ore</p>
+          <p className="text-sm font-semibold tabular-nums">{(totMinuti / 60).toFixed(1)}h</p>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Km</p>
+          <p className="text-sm font-semibold tabular-nums">{totKm > 0 ? totKm.toFixed(1) : "—"}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Sessioni</p>
+          <p className="text-sm font-semibold tabular-nums">{sessioni}</p>
+        </div>
+      </div>
 
       {piano.note && (
         <p className="mt-3 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
