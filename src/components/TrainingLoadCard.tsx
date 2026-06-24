@@ -15,10 +15,7 @@ export function TrainingLoadCard({ attivita }: { attivita: AttivitaForAnalytics[
   return (
     <section
       className="rounded-2xl p-5"
-      style={{
-        background: "oklch(0.115 0.025 295)",
-        boxShadow: "0 1px 0 oklch(1 0 0 / 5%) inset, 0 8px 24px oklch(0 0 0 / 40%)",
-      }}
+      style={{ background: "oklch(0.115 0.025 295)", border: "1px solid oklch(1 0 0 / 6%)" }}
     >
       <div className="mb-0.5 flex items-center justify-between">
         <h2

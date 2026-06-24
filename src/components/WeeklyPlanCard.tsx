@@ -73,7 +73,7 @@ export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[]
 
   if (!piano) {
     return (
-      <section className="rounded-2xl p-5" style={{ background: "oklch(0.115 0.025 295)", boxShadow: "0 1px 0 oklch(1 0 0 / 5%) inset, 0 8px 24px oklch(0 0 0 / 40%)" }}>
+      <section className="rounded-2xl p-5" style={{ background: "oklch(0.115 0.025 295)", border: "1px solid oklch(1 0 0 / 6%)" }}>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.6 0.02 290)" }}>Piano settimanale</h2>
         </div>
@@ -122,7 +122,7 @@ export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[]
   const sessioni = piano.giorni.filter((g) => !g.riposo).length;
 
   return (
-    <section className="rounded-2xl p-5" style={{ background: "oklch(0.115 0.025 295)", boxShadow: "0 1px 0 oklch(1 0 0 / 5%) inset, 0 8px 24px oklch(0 0 0 / 40%)" }}>
+    <section className="rounded-2xl p-5" style={{ background: "oklch(0.115 0.025 295)", border: "1px solid oklch(1 0 0 / 6%)" }}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.6 0.02 290)" }}>Piano settimanale</h2>
         <button
