@@ -134,163 +134,167 @@ function HomePage() {
         })}
       </div>
 
-      <div className="space-y-5 pt-3 pb-10" style={{ animation: "fade-up 0.45s 0.08s cubic-bezier(0.16,1,0.3,1) both" }}>
-        {/* ─── Hero workout card ──────────────────────── */}
-        <HeroWorkoutCard
-          sportColor={sport.color}
-          sportLabel={sport.label}
-          workout={nextWorkout}
-        />
+      <div className="pt-3 pb-10" style={{ animation: "fade-up 0.45s 0.08s cubic-bezier(0.16,1,0.3,1) both" }}>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {/* ─── Hero workout card ──────────────────────── */}
+          <div className="md:col-span-2 lg:col-span-3">
+            <HeroWorkoutCard
+              sportColor={sport.color}
+              sportLabel={sport.label}
+              workout={nextWorkout}
+            />
+          </div>
 
-        {/* ─── Weekly ring + streak ───────────────────── */}
-        <div className="grid grid-cols-5 gap-3">
-          <div className="col-span-3 rounded-2xl p-5" style={cardStyle}>
-            <div className="flex items-start justify-between">
+          {/* ─── Weekly ring + streak ───────────────────── */}
+          <div className="grid grid-cols-5 gap-3 md:col-span-2 lg:col-span-2">
+            <div className="col-span-3 rounded-2xl p-5" style={cardStyle}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="label-caps" style={mutedText}>Volume settimana</p>
+                  <p className="mt-2 metric-num text-3xl">
+                    {oreSettimana.toFixed(1)}<span className="ml-1 text-lg" style={mutedText}>h</span>
+                  </p>
+                  <p className="mt-1 text-xs" style={mutedText}>
+                    target {WEEKLY_TARGET_HOURS}h
+                  </p>
+                </div>
+                <WeeklyRing value={oreSettimana} target={WEEKLY_TARGET_HOURS} color={sport.color} />
+              </div>
+              <div className="mt-4 flex items-center gap-4 border-t border-[#1F1F1F] pt-3">
+                <MiniStat label="sessioni" value={String(settimana.length)} />
+                <span className="h-7 w-px bg-[#1F1F1F]" />
+                <MiniStat label="km" value={kmSettimana ? kmSettimana.toFixed(1) : "—"} />
+              </div>
+            </div>
+
+            <div
+              className="col-span-2 flex flex-col justify-between rounded-2xl p-5"
+              style={{
+                background: streak > 0
+                  ? "linear-gradient(155deg, #1A0F08 0%, #111111 100%)"
+                  : "#111111",
+                border: streak > 0 ? "1px solid #3A1F0A" : "1px solid #2A2A2A",
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <Flame
+                  size={16}
+                  strokeWidth={2.5}
+                  style={{ color: streak > 0 ? "var(--color-accent-2)" : "#5A5A60" }}
+                  fill={streak > 0 ? "var(--color-accent-2)" : "none"}
+                />
+                <span className="label-caps" style={mutedText}>Streak</span>
+              </div>
               <div>
-                <p className="label-caps" style={mutedText}>Volume settimana</p>
-                <p className="mt-2 metric-num text-3xl">
-                  {oreSettimana.toFixed(1)}<span className="ml-1 text-lg" style={mutedText}>h</span>
+                <p
+                  className="metric-num text-4xl"
+                  style={{ color: streak > 0 ? "#FFFFFF" : "#5A5A60" }}
+                >
+                  {streak}
                 </p>
-                <p className="mt-1 text-xs" style={mutedText}>
-                  target {WEEKLY_TARGET_HOURS}h
+                <p className="mt-0.5 text-xs" style={mutedText}>
+                  {streak === 1 ? "giorno" : "giorni"} attivi
                 </p>
               </div>
-              <WeeklyRing value={oreSettimana} target={WEEKLY_TARGET_HOURS} color={sport.color} />
-            </div>
-            <div className="mt-4 flex items-center gap-4 border-t border-[#1F1F1F] pt-3">
-              <MiniStat label="sessioni" value={String(settimana.length)} />
-              <span className="h-7 w-px bg-[#1F1F1F]" />
-              <MiniStat label="km" value={kmSettimana ? kmSettimana.toFixed(1) : "—"} />
             </div>
           </div>
 
-          <div
-            className="col-span-2 flex flex-col justify-between rounded-2xl p-5"
+          {/* ─── Coach CTA ──────────────────────────────── */}
+          <Link
+            to="/coach"
+            className="group flex items-center gap-4 rounded-2xl p-4 transition-all duration-200 lg:col-span-1"
             style={{
-              background: streak > 0
-                ? "linear-gradient(155deg, #1A0F08 0%, #111111 100%)"
-                : "#111111",
-              border: streak > 0 ? "1px solid #3A1F0A" : "1px solid #2A2A2A",
+              background: "linear-gradient(135deg, #1F0807 0%, #111111 100%)",
+              border: "1px solid #3A1410",
             }}
           >
-            <div className="flex items-center gap-1.5">
-              <Flame
-                size={16}
-                strokeWidth={2.5}
-                style={{ color: streak > 0 ? "var(--color-accent-2)" : "#5A5A60" }}
-                fill={streak > 0 ? "var(--color-accent-2)" : "none"}
-              />
-              <span className="label-caps" style={mutedText}>Streak</span>
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+              style={{
+                background: "var(--gradient-hero)",
+                boxShadow: "0 0 18px rgba(255, 59, 48, 0.4)",
+              }}
+            >
+              <MessageCircle size={18} strokeWidth={2.5} />
             </div>
-            <div>
-              <p
-                className="metric-num text-4xl"
-                style={{ color: streak > 0 ? "#FFFFFF" : "#5A5A60" }}
-              >
-                {streak}
+            <div className="flex-1">
+              <p className="font-display text-base tracking-wider uppercase text-white">
+                Parla con il Coach
               </p>
-              <p className="mt-0.5 text-xs" style={mutedText}>
-                {streak === 1 ? "giorno" : "giorni"} attivi
+              <p className="text-xs" style={mutedText}>
+                Piano · Recupero · Analisi · Nutrizione
               </p>
             </div>
-          </div>
-        </div>
+            <ChevronRight
+              size={18}
+              style={{ color: "var(--color-accent)" }}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
 
-        {/* ─── Upcoming sessions ──────────────────────── */}
-        <section>
-          <SectionLabel label="Prossime sessioni" />
-          <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:px-0">
-            {mockUpcoming(activeSport).map((u, i) => (
-              <UpcomingCard key={i} {...u} />
-            ))}
-          </div>
-        </section>
-
-        {/* ─── Coach CTA ──────────────────────────────── */}
-        <Link
-          to="/coach"
-          className="group flex items-center gap-4 rounded-2xl p-4 transition-all duration-200"
-          style={{
-            background: "linear-gradient(135deg, #1F0807 0%, #111111 100%)",
-            border: "1px solid #3A1410",
-          }}
-        >
-          <div
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{
-              background: "var(--gradient-hero)",
-              boxShadow: "0 0 18px rgba(255, 59, 48, 0.4)",
-            }}
-          >
-            <MessageCircle size={18} strokeWidth={2.5} />
-          </div>
-          <div className="flex-1">
-            <p className="font-display text-base tracking-wider uppercase text-white">
-              Parla con il Coach
-            </p>
-            <p className="text-xs" style={mutedText}>
-              Piano · Recupero · Analisi · Nutrizione
-            </p>
-          </div>
-          <ChevronRight
-            size={18}
-            style={{ color: "var(--color-accent)" }}
-            className="transition-transform group-hover:translate-x-0.5"
-          />
-        </Link>
-
-        {/* ─── Recent activity ────────────────────────── */}
-        <section>
-          <SectionLabel label="Attività recenti" />
-          {loading ? (
-            <Skeleton h={180} />
-          ) : attivita.length === 0 ? (
-            <div className="rounded-2xl border border-dashed py-14 text-center" style={{ borderColor: "#2A2A2A" }}>
-              <Activity size={22} className="mx-auto mb-3" style={{ color: "#5A5A60" }} />
-              <p className="text-sm" style={mutedText}>Nessuna attività ancora</p>
-              <button
-                onClick={() => setAddOpen(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest text-white"
-                style={{ background: "var(--color-accent)" }}
-              >
-                <Plus size={13} strokeWidth={3} /> Aggiungi
-              </button>
+          {/* ─── Upcoming sessions ──────────────────────── */}
+          <section className="md:col-span-2 lg:col-span-3">
+            <SectionLabel label="Prossime sessioni" />
+            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:px-0">
+              {mockUpcoming(activeSport).map((u, i) => (
+                <UpcomingCard key={i} {...u} />
+              ))}
             </div>
-          ) : (
-            <div className="overflow-hidden rounded-2xl" style={cardStyle}>
-              {attivita.slice(0, 5).map((a, i) => {
-                const info = sportInfo(a.sport_type);
-                return (
-                  <div
-                    key={a.id}
-                    className="flex items-center gap-4 px-4 py-3.5"
-                    style={{ borderBottom: i < Math.min(4, attivita.length - 1) ? "1px solid #1A1A1A" : "none" }}
-                  >
-                    <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: info.color }} />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-display text-base tracking-wide uppercase">{info.label}</p>
-                      <p className="mt-0.5 metric-num text-xs" style={mutedText}>
-                        {a.distanza_km ? `${a.distanza_km.toFixed(1)} KM · ` : ""}
-                        {a.durata_min ?? "?"}′
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-[11px] uppercase tracking-wider" style={mutedText}>
-                      {formatRelDay(a.data)}
-                    </span>
-                    {a.rpe ? (
-                      <span
-                        className="metric-num shrink-0 rounded-md px-2 py-1 text-xs"
-                        style={{ background: "#1A1A1A", color: "#FFFFFF" }}
-                      >
-                        {a.rpe}
+          </section>
+
+          {/* ─── Recent activity ────────────────────────── */}
+          <section className="md:col-span-2 lg:col-span-3">
+            <SectionLabel label="Attività recenti" />
+            {loading ? (
+              <Skeleton h={180} />
+            ) : attivita.length === 0 ? (
+              <div className="rounded-2xl border border-dashed py-14 text-center" style={{ borderColor: "#2A2A2A" }}>
+                <Activity size={22} className="mx-auto mb-3" style={{ color: "#5A5A60" }} />
+                <p className="text-sm" style={mutedText}>Nessuna attività ancora</p>
+                <button
+                  onClick={() => setAddOpen(true)}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest text-white"
+                  style={{ background: "var(--color-accent)" }}
+                >
+                  <Plus size={13} strokeWidth={3} /> Aggiungi
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-2xl" style={cardStyle}>
+                {attivita.slice(0, 5).map((a, i) => {
+                  const info = sportInfo(a.sport_type);
+                  return (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-4 px-4 py-3.5"
+                      style={{ borderBottom: i < Math.min(4, attivita.length - 1) ? "1px solid #1A1A1A" : "none" }}
+                    >
+                      <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: info.color }} />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-display text-base tracking-wide uppercase">{info.label}</p>
+                        <p className="mt-0.5 metric-num text-xs" style={mutedText}>
+                          {a.distanza_km ? `${a.distanza_km.toFixed(1)} KM · ` : ""}
+                          {a.durata_min ?? "?"}′
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-[11px] uppercase tracking-wider" style={mutedText}>
+                        {formatRelDay(a.data)}
                       </span>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                      {a.rpe ? (
+                        <span
+                          className="metric-num shrink-0 rounded-md px-2 py-1 text-xs"
+                          style={{ background: "#1A1A1A", color: "#FFFFFF" }}
+                        >
+                          {a.rpe}
+                        </span>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
 
       {/* FAB removed in favor of Inizia tab */}
