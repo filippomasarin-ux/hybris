@@ -79,16 +79,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { title: "RunHub AI — Il tuo coach personale" },
-      { name: "description", content: "RunHub AI: l'app AI che ti allena ogni giorno. Per atleti e run club." },
-      { name: "theme-color", content: "#0B0B12" },
+      { title: "RunHub AI — Multi-sport AI coach" },
+      { name: "description", content: "RunHub AI: coach AI multi-sport per atleti. Corsa, ciclismo, nuoto, forza, trail." },
+      { name: "theme-color", content: "#0A0A0A" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap",
       },
       { rel: "stylesheet", href: appCss },
     ],

@@ -6,19 +6,20 @@
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
   --radius-3xl: 999px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -31,9 +32,11 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-2: var(--accent-2);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
+  --color-success: var(--success);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -44,56 +47,67 @@
   --color-sport-palestra: var(--sport-palestra);
   --color-sport-hiit: var(--sport-hiit);
   --color-sport-yoga: var(--sport-yoga);
+  --color-sport-trail: var(--sport-trail);
   --color-sport-altro: var(--sport-altro);
 
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 12px 40px rgba(124, 58, 237, 0.3);
-  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.4), 0 0 48px rgba(139, 92, 246, 0.15);
-  --shadow-glow-sm: 0 0 12px rgba(139, 92, 246, 0.35);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 14px 40px rgba(255, 59, 48, 0.18);
+  --shadow-glow: 0 0 24px rgba(255, 59, 48, 0.45), 0 0 56px rgba(255, 149, 0, 0.18);
+  --shadow-glow-sm: 0 0 12px rgba(255, 59, 48, 0.4);
 }
 
 :root {
-  --background: oklch(0.07 0.022 295);
-  --foreground: oklch(0.97 0.008 290);
+  /* Dark Performance — true black */
+  --background: #0A0A0A;
+  --foreground: #FFFFFF;
 
-  --surface: oklch(0.115 0.025 295);
-  --card: oklch(0.115 0.025 295);
-  --card-foreground: oklch(0.97 0.008 290);
+  --surface: #111111;
+  --surface-2: #1A1A1A;
+  --card: #111111;
+  --card-foreground: #FFFFFF;
 
-  --popover: oklch(0.115 0.025 295);
-  --popover-foreground: oklch(0.97 0.008 290);
+  --popover: #141414;
+  --popover-foreground: #FFFFFF;
 
-  --primary: oklch(0.97 0.008 290);
-  --primary-foreground: oklch(0.09 0.022 295);
+  --primary: #FF3B30;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.18 0.03 295);
-  --secondary-foreground: oklch(0.97 0.008 290);
+  --secondary: #1A1A1A;
+  --secondary-foreground: #FFFFFF;
 
-  --muted: oklch(0.18 0.03 295);
-  --muted-foreground: oklch(0.62 0.03 290);
+  --muted: #1A1A1A;
+  --muted-foreground: #8E8E93;
 
-  /* Electric violet — the hero accent */
-  --accent: oklch(0.66 0.28 295);
-  --accent-foreground: oklch(0.99 0 0);
+  /* Adrenaline red — hero accent */
+  --accent: #FF3B30;
+  --accent-foreground: #FFFFFF;
+  /* Sprint orange — secondary accent */
+  --accent-2: #FF9500;
 
-  --destructive: oklch(0.62 0.21 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: #FF453A;
+  --destructive-foreground: #FFFFFF;
 
-  --warning: oklch(0.78 0.16 70);
+  --warning: #FF9500;
+  --success: #30D158;
 
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 11%);
-  --ring: oklch(0.66 0.28 295);
+  --border: #2A2A2A;
+  --input: #1F1F1F;
+  --ring: #FF3B30;
 
-  --sport-corsa: oklch(0.67 0.19 35);
-  --sport-ciclismo: oklch(0.62 0.17 245);
-  --sport-nuoto: oklch(0.62 0.14 170);
-  --sport-palestra: oklch(0.62 0.22 295);
-  --sport-hiit: oklch(0.78 0.16 70);
-  --sport-yoga: oklch(0.65 0.18 350);
-  --sport-altro: oklch(0.7 0.02 260);
+  /* Sport identity colors per brief */
+  --sport-corsa: #FF3B30;
+  --sport-ciclismo: #FF9500;
+  --sport-nuoto: #30A2FF;
+  --sport-palestra: #BF5AF2;
+  --sport-hiit: #FF3B30;
+  --sport-yoga: #BF5AF2;
+  --sport-trail: #30D158;
+  --sport-altro: #8E8E93;
 
-  --radius: 0.75rem;
+  --radius: 0.875rem;
+
+  --gradient-hero: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+  --gradient-surface: linear-gradient(180deg, #161616 0%, #0F0F0F 100%);
 }
 
 /* ─── Keyframes ─────────────────────────────────────────── */
@@ -114,8 +128,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.3); }
-  50%       { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.55), 0 8px 28px rgba(255, 59, 48, 0.4); }
+  50%      { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0), 0 8px 28px rgba(255, 59, 48, 0.55); }
 }
 
 @keyframes shimmer {
@@ -123,14 +137,14 @@
   100% { background-position: 200% center; }
 }
 
-@keyframes orbit {
-  from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%      { transform: scale(1.08); opacity: 1; }
 }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50%       { transform: scale(1.08); opacity: 1; }
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Base ───────────────────────────────────────────────── */
@@ -150,23 +164,36 @@
 
   body {
     font-size: 15px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
   }
 }
 
 /* ─── Utilities ─────────────────────────────────────────── */
 
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
 @utility label-caps {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+@utility metric-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.04em;
 }
 
 @utility animate-fade-up {
@@ -181,8 +208,27 @@
   animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@utility animate-pulse-glow {
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+
+@utility animate-count-up {
+  animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @utility glow-accent {
   box-shadow: var(--shadow-glow-sm);
+}
+
+@utility gradient-hero {
+  background: var(--gradient-hero);
+}
+
+@utility text-gradient-hero {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @utility card-hover {
@@ -196,10 +242,10 @@
 @utility shimmer-text {
   background: linear-gradient(
     90deg,
-    var(--color-foreground) 0%,
-    var(--color-accent) 40%,
-    oklch(0.85 0.15 295) 60%,
-    var(--color-foreground) 100%
+    #FFFFFF 0%,
+    #FF3B30 40%,
+    #FF9500 60%,
+    #FFFFFF 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -208,34 +254,25 @@
   animation: shimmer 3s linear infinite;
 }
 
-/* ─── Noise texture overlay ─────────────────────────────── */
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
-
 /* ─── Scrollbar ─────────────────────────────────────────── */
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: oklch(1 0 0 / 12%);
+  background: #2A2A2A;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.66 0.28 295 / 60%);
+  background: #FF3B30;
 }
+
+/* Hide scrollbar on horizontal scrollers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
 
 /* ─── Selection ─────────────────────────────────────────── */
 
 ::selection {
-  background: oklch(0.66 0.28 295 / 35%);
-  color: var(--color-foreground);
+  background: rgba(255, 59, 48, 0.35);
+  color: #FFFFFF;
 }
