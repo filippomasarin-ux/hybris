@@ -114,11 +114,6 @@ function HomePage() {
         </h1>
       </header>
 
-      {/* ─── Sport switcher ─────────────────────────────── */}
-      <div
-        className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-2 md:mx-0 md:px-0"
-        style={{ animation: "fade-up 0.4s 0.05s cubic-bezier(0.16,1,0.3,1) both" }}
-      >
       {/* ─── Sport filter ────────────────────────────────── */}
       <div
         className="-mx-4 px-4 py-2 md:mx-0 md:px-0"
