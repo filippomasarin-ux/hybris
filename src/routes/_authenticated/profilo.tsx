@@ -64,7 +64,7 @@ function ProfiloPage() {
     if (!auth.user) return;
     const { data } = await supabase
       .from("profiles")
-      .select("id, email, nome, sport_primario, sport_secondari, obiettivo_tipo, obiettivo_dettaglio, obiettivi, obiettivi_pesati, volume_target")
+      .select("*")
       .eq("id", auth.user.id)
       .maybeSingle();
     setP(data as Profile | null);
