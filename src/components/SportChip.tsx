@@ -28,14 +28,14 @@ export function SportChip({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all"
+      className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 py-2 text-sm font-medium transition-all"
       style={
         selected
           ? { backgroundColor: info.color, color: "white", borderColor: info.color }
           : { backgroundColor: "var(--color-surface)", color: "var(--color-foreground)", borderColor: "var(--color-border)" }
       }
     >
-      {showIcon && <Icon className="h-3.5 w-3.5" strokeWidth={2} />}
+      {showIcon && <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />}
       <span>{info.label}</span>
     </button>
   );

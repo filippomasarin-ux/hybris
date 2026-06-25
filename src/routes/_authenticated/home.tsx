@@ -13,11 +13,13 @@ import {
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
-import { SPORTS, sportInfo, type SportKey } from "@/lib/sports";
+import { sportInfo, type SportKey } from "@/lib/sports";
 import { AddActivityDialog } from "@/components/AddActivityDialog";
 import { toast } from "sonner";
 import { getAttivitaAnalytics } from "@/lib/attivita.functions";
 import type { AttivitaForAnalytics } from "@/lib/analytics";
+import { useActiveSports } from "@/hooks/useActiveSports";
+import { SportFilterBar } from "@/components/SportFilterBar";
 
 export const Route = createFileRoute("/_authenticated/home")({
   ssr: false,
@@ -44,7 +46,6 @@ function HomePage() {
   const [, setAnalytics] = useState<AttivitaForAnalytics[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
-  const [activeSport, setActiveSport] = useState<SportKey>("corsa");
   const fetchAnalytics = useServerFn(getAttivitaAnalytics);
 
   const load = async () => {
@@ -72,10 +73,19 @@ function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const attivitaSports = useMemo(() => attivita.map((a) => a.sport_type ?? ""), [attivita]);
+  const { sportPraticati, filtroAttivo, attivi, tuttiSelezionati, toggleSport, selezionaTutti } =
+    useActiveSports(attivitaSports);
+
+  const attivitaFiltrate = useMemo(
+    () => attivita.filter((a) => filtroAttivo.includes(a.sport_type ?? "")),
+    [attivita, filtroAttivo],
+  );
+
   const settimana = useMemo(() => {
     const since = Date.now() - 7 * 86400000;
-    return attivita.filter((a) => new Date(a.data).getTime() >= since);
-  }, [attivita]);
+    return attivitaFiltrate.filter((a) => new Date(a.data).getTime() >= since);
+  }, [attivitaFiltrate]);
 
   const oreSettimana = useMemo(
     () => settimana.reduce((s, a) => s + (a.durata_min ?? 0), 0) / 60,
@@ -88,6 +98,7 @@ function HomePage() {
 
   const streak = useMemo(() => computeStreak(attivita), [attivita]);
 
+  const activeSport: SportKey = (filtroAttivo[0] as SportKey) ?? "corsa";
   const sport = sportInfo(activeSport);
   const nextWorkout = mockNextWorkout(activeSport);
 
@@ -103,35 +114,18 @@ function HomePage() {
         </h1>
       </header>
 
-      {/* ─── Sport switcher ─────────────────────────────── */}
+      {/* ─── Sport filter ────────────────────────────────── */}
       <div
-        className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-2 md:mx-0 md:px-0"
+        className="-mx-4 px-4 py-2 md:mx-0 md:px-0"
         style={{ animation: "fade-up 0.4s 0.05s cubic-bezier(0.16,1,0.3,1) both" }}
       >
-        {SPORTS.map((s) => {
-          const active = s.key === activeSport;
-          const Icon = s.icon;
-          return (
-            <button
-              key={s.key}
-              onClick={() => setActiveSport(s.key)}
-              className="flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 transition-all duration-200"
-              style={{
-                background: active ? s.color : "#111111",
-                border: active ? `1px solid ${s.color}` : "1px solid #2A2A2A",
-                boxShadow: active ? `0 0 20px ${s.color}66` : "none",
-              }}
-            >
-              <Icon size={15} strokeWidth={2.5} color="white" />
-              <span
-                className="font-display text-sm tracking-widest uppercase"
-                style={{ color: active ? "white" : "#8E8E93" }}
-              >
-                {s.label}
-              </span>
-            </button>
-          );
-        })}
+        <SportFilterBar
+          sportPraticati={sportPraticati}
+          attivi={attivi}
+          tuttiSelezionati={tuttiSelezionati}
+          onToggle={toggleSport}
+          onTutti={selezionaTutti}
+        />
       </div>
 
       <div className="pt-3 pb-10" style={{ animation: "fade-up 0.45s 0.08s cubic-bezier(0.16,1,0.3,1) both" }}>

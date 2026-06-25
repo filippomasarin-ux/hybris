@@ -32,7 +32,7 @@ function zonaColor(zona?: string): string {
   return "var(--color-muted-foreground)";
 }
 
-export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[] }) {
+export function WeeklyPlanCard({ attivita, sportFiltro }: { attivita?: AttivitaForAnalytics[]; sportFiltro?: string[] }) {
   const fetchPiano = useServerFn(getPianoCorrente);
   const genPiano = useServerFn(generaPianoSettimanale);
   const [piano, setPiano] = useState<Piano | null>(null);
@@ -184,6 +184,8 @@ export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[]
           const gInfo = sportInfo(g.sport);
           const today = isToday(piano.settimana_inizio, i);
           const zCol = zonaColor(g.zona_intensita);
+          const dimmed =
+            !!sportFiltro && sportFiltro.length > 0 && !g.riposo && !sportFiltro.includes(g.sport ?? "");
           return (
             <button
               key={i}
@@ -192,6 +194,7 @@ export function WeeklyPlanCard({ attivita }: { attivita?: AttivitaForAnalytics[]
               style={{
                 borderColor: isSel ? "var(--color-accent)" : "var(--color-border)",
                 background: isSel ? "color-mix(in oklab, var(--color-accent) 14%, var(--color-surface))" : "transparent",
+                opacity: dimmed ? 0.3 : 1,
               }}
             >
               <span className={`text-[10px] font-medium uppercase tracking-wide ${today ? "text-accent" : "text-muted-foreground"}`}>
