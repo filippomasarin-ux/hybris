@@ -244,10 +244,6 @@ export type Database = {
           ruolo: string | null
           sport_primario: string | null
           sport_secondari: string[] | null
-          strava_access_token: string | null
-          strava_athlete_id: number | null
-          strava_refresh_token: string | null
-          strava_token_expires_at: number | null
           updated_at: string | null
         }
         Insert: {
@@ -266,10 +262,6 @@ export type Database = {
           ruolo?: string | null
           sport_primario?: string | null
           sport_secondari?: string[] | null
-          strava_access_token?: string | null
-          strava_athlete_id?: number | null
-          strava_refresh_token?: string | null
-          strava_token_expires_at?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -288,10 +280,6 @@ export type Database = {
           ruolo?: string | null
           sport_primario?: string | null
           sport_secondari?: string[] | null
-          strava_access_token?: string | null
-          strava_athlete_id?: number | null
-          strava_refresh_token?: string | null
-          strava_token_expires_at?: number | null
           updated_at?: string | null
         }
         Relationships: []

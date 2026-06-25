@@ -1,16 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useMemo } from "react";
-import { Plus, ChevronRight, Zap } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Plus,
+  ChevronRight,
+  Flame,
+  Play,
+  Activity,
+  MessageCircle,
+  Target,
+  TrendingUp,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
-import { sportInfo } from "@/lib/sports";
+import { SPORTS, sportInfo, type SportKey } from "@/lib/sports";
 import { AddActivityDialog } from "@/components/AddActivityDialog";
 import { toast } from "sonner";
-import { WeeklyPlanCard } from "@/components/WeeklyPlanCard";
-import { TrainingLoadCard } from "@/components/TrainingLoadCard";
-import { VolumeCard } from "@/components/VolumeCard";
-import { AerobicoCard } from "@/components/AerobicoCard";
 import { getAttivitaAnalytics } from "@/lib/attivita.functions";
 import type { AttivitaForAnalytics } from "@/lib/analytics";
 
@@ -30,14 +35,16 @@ type Attivita = {
 
 type Profile = { nome: string | null };
 
+const WEEKLY_TARGET_HOURS = 6;
+
 function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [attivita, setAttivita] = useState<Attivita[]>([]);
-  const [analytics, setAnalytics] = useState<AttivitaForAnalytics[] | null>(null);
+  const [, setAnalytics] = useState<AttivitaForAnalytics[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
-  const [editRpe, setEditRpe] = useState<{ id: string; value: number } | null>(null);
+  const [activeSport, setActiveSport] = useState<SportKey>("corsa");
   const fetchAnalytics = useServerFn(getAttivitaAnalytics);
 
   const load = async () => {
@@ -51,7 +58,7 @@ function HomePage() {
         .select("id, sport_type, data, durata_min, distanza_km, rpe")
         .eq("user_id", auth.user.id)
         .order("data", { ascending: false })
-        .limit(20),
+        .limit(30),
       fetchAnalytics().catch(() => [] as AttivitaForAnalytics[]),
     ]);
     setProfile(p);
@@ -65,214 +72,228 @@ function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const stato = useMemo(() => computeStato(attivita), [attivita]);
   const settimana = useMemo(() => {
     const since = Date.now() - 7 * 86400000;
     return attivita.filter((a) => new Date(a.data).getTime() >= since);
   }, [attivita]);
-  const kmSettimana = settimana.reduce((s, a) => s + (a.distanza_km ?? 0), 0);
 
-  const saveRpe = async () => {
-    if (!editRpe) return;
-    const { error } = await supabase
-      .from("attivita")
-      .update({ rpe: editRpe.value })
-      .eq("id", editRpe.id);
-    if (error) { toast.error("Errore"); return; }
-    toast.success("RPE salvato");
-    setEditRpe(null);
-    load();
-  };
+  const oreSettimana = useMemo(
+    () => settimana.reduce((s, a) => s + (a.durata_min ?? 0), 0) / 60,
+    [settimana],
+  );
+  const kmSettimana = useMemo(
+    () => settimana.reduce((s, a) => s + (a.distanza_km ?? 0), 0),
+    [settimana],
+  );
+
+  const streak = useMemo(() => computeStreak(attivita), [attivita]);
+
+  const sport = sportInfo(activeSport);
+  const nextWorkout = mockNextWorkout(activeSport);
 
   return (
     <AppShell>
-      {/* ── Header ─────────────────────────────────────── */}
-      <header className="pt-7 pb-5" style={{ animation: "fade-up 0.35s cubic-bezier(0.16,1,0.3,1) both" }}>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--color-accent)" }}>
-              {getGreeting()}
-            </p>
-            <h1 className="mt-0.5 text-3xl font-black tracking-tight">
-              {profile?.nome?.split(" ")[0] ?? "Atleta"}
-            </h1>
-          </div>
-
-          {/* Form status pill */}
-          {!loading && (
-            <div
-              className="mt-1 flex items-center gap-1.5 rounded-full px-3 py-1.5"
-              style={{ background: `color-mix(in oklab, ${stato.color} 12%, oklch(0.115 0.025 295))`, border: `1px solid color-mix(in oklab, ${stato.color} 25%, transparent)` }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: stato.color }} />
-              <span className="text-xs font-semibold" style={{ color: stato.color }}>{stato.label}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick stats row */}
-        {!loading && (
-          <div
-            className="mt-4 flex items-center gap-0 divide-x rounded-xl px-1 py-3"
-            style={{
-              background: "oklch(0.115 0.025 295)",
-              border: "1px solid oklch(1 0 0 / 6%)",
-              divideColor: "oklch(1 0 0 / 6%)",
-            }}
-          >
-            <QuickStat value={String(settimana.length)} label="sessioni" />
-            <QuickStat value={kmSettimana ? `${kmSettimana.toFixed(1)}` : "—"} label="km" />
-            <QuickStat value={attivita[0] ? formatRelDay(attivita[0].data) : "—"} label="ultima" />
-          </div>
-        )}
+      {/* ─── Greeting ───────────────────────────────────── */}
+      <header className="pt-7 pb-4 animate-fade-up">
+        <p className="label-caps" style={{ color: "var(--color-accent)" }}>
+          {getGreeting()}
+        </p>
+        <h1 className="mt-1 font-display text-4xl tracking-wider uppercase">
+          {profile?.nome?.split(" ")[0] ?? "Atleta"}
+        </h1>
       </header>
 
-      <div style={{ animation: "fade-up 0.4s 0.08s cubic-bezier(0.16,1,0.3,1) both" }}>
-
-        {/* ── Piano settimana (hero) ──────────────────── */}
-        <SectionLabel label="Questa settimana" />
-        {loading
-          ? <Skeleton h={300} />
-          : <WeeklyPlanCard attivita={analytics ?? []} />
-        }
-
-        {/* ── Attività recenti ───────────────────────── */}
-        <SectionLabel label="Attività recenti" className="mt-8" />
-        {loading ? (
-          <Skeleton h={180} />
-        ) : attivita.length === 0 ? (
-          <div
-            className="rounded-2xl border border-dashed py-12 text-center"
-            style={{ borderColor: "oklch(1 0 0 / 8%)" }}
-          >
-            <p className="text-sm" style={{ color: "oklch(0.5 0.02 290)" }}>Nessuna attività ancora.</p>
+      {/* ─── Sport switcher ─────────────────────────────── */}
+      <div
+        className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-2 md:mx-0 md:px-0"
+        style={{ animation: "fade-up 0.4s 0.05s cubic-bezier(0.16,1,0.3,1) both" }}
+      >
+        {SPORTS.map((s) => {
+          const active = s.key === activeSport;
+          const Icon = s.icon;
+          return (
             <button
-              onClick={() => setAddOpen(true)}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold tracking-wide text-white"
-              style={{ background: "var(--color-accent)" }}
+              key={s.key}
+              onClick={() => setActiveSport(s.key)}
+              className="flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 transition-all duration-200"
+              style={{
+                background: active ? s.color : "#111111",
+                border: active ? `1px solid ${s.color}` : "1px solid #2A2A2A",
+                boxShadow: active ? `0 0 20px ${s.color}66` : "none",
+              }}
             >
-              <Plus size={13} /> Prima attività
-            </button>
-          </div>
-        ) : (
-          <div
-            className="overflow-hidden rounded-2xl"
-            style={{ border: "1px solid oklch(1 0 0 / 6%)" }}
-          >
-            {attivita.slice(0, 5).map((a, i) => {
-              const info = sportInfo(a.sport_type);
-              return (
-                <div
-                  key={a.id}
-                  className="flex items-center gap-4 px-4 py-3.5 transition-colors"
-                  style={{
-                    background: i % 2 === 0 ? "oklch(0.115 0.025 295)" : "oklch(0.105 0.022 295)",
-                    borderBottom: i < 4 ? "1px solid oklch(1 0 0 / 5%)" : "none",
-                  }}
-                >
-                  {/* Sport color bar */}
-                  <span
-                    className="h-8 w-1 shrink-0 rounded-full"
-                    style={{ background: info.color }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{info.label}</p>
-                    <p className="mt-0.5 text-xs" style={{ color: "oklch(0.52 0.02 290)" }}>
-                      {a.distanza_km ? `${a.distanza_km.toFixed(1)} km · ` : ""}
-                      {a.durata_min ?? "?"} min
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-xs" style={{ color: "oklch(0.48 0.02 290)" }}>
-                    {formatRelDay(a.data)}
-                  </span>
-                  {a.rpe ? (
-                    <span
-                      className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold tabular-nums"
-                      style={{ background: "oklch(0.08 0.018 295)", color: "oklch(0.8 0.02 290)" }}
-                    >
-                      RPE {a.rpe}
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setEditRpe({ id: a.id, value: 6 })}
-                      className="shrink-0 rounded-lg border px-2 py-1 text-xs font-medium transition-colors"
-                      style={{ borderColor: "oklch(1 0 0 / 8%)", color: "oklch(0.5 0.02 290)" }}
-                    >
-                      + RPE
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            {attivita.length > 5 && (
-              <div
-                className="flex items-center justify-center gap-1 py-3 text-xs font-medium"
-                style={{ color: "oklch(0.5 0.02 290)", background: "oklch(0.105 0.022 295)" }}
+              <Icon size={15} strokeWidth={2.5} color="white" />
+              <span
+                className="font-display text-sm tracking-widest uppercase"
+                style={{ color: active ? "white" : "#8E8E93" }}
               >
-                +{attivita.length - 5} altre attività <ChevronRight size={12} />
-              </div>
-            )}
-          </div>
-        )}
+                {s.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* ── Coach CTA ─────────────────────────────── */}
-        <a
-          href="/coach"
-          className="group mt-3 flex items-center gap-4 rounded-2xl p-4 transition-all duration-200 hover:brightness-110"
+      <div className="space-y-5 pt-3 pb-10" style={{ animation: "fade-up 0.45s 0.08s cubic-bezier(0.16,1,0.3,1) both" }}>
+        {/* ─── Hero workout card ──────────────────────── */}
+        <HeroWorkoutCard
+          sportColor={sport.color}
+          sportLabel={sport.label}
+          workout={nextWorkout}
+        />
+
+        {/* ─── Weekly ring + streak ───────────────────── */}
+        <div className="grid grid-cols-5 gap-3">
+          <div className="col-span-3 rounded-2xl p-5" style={cardStyle}>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="label-caps" style={mutedText}>Volume settimana</p>
+                <p className="mt-2 metric-num text-3xl">
+                  {oreSettimana.toFixed(1)}<span className="ml-1 text-lg" style={mutedText}>h</span>
+                </p>
+                <p className="mt-1 text-xs" style={mutedText}>
+                  target {WEEKLY_TARGET_HOURS}h
+                </p>
+              </div>
+              <WeeklyRing value={oreSettimana} target={WEEKLY_TARGET_HOURS} color={sport.color} />
+            </div>
+            <div className="mt-4 flex items-center gap-4 border-t border-[#1F1F1F] pt-3">
+              <MiniStat label="sessioni" value={String(settimana.length)} />
+              <span className="h-7 w-px bg-[#1F1F1F]" />
+              <MiniStat label="km" value={kmSettimana ? kmSettimana.toFixed(1) : "—"} />
+            </div>
+          </div>
+
+          <div
+            className="col-span-2 flex flex-col justify-between rounded-2xl p-5"
+            style={{
+              background: streak > 0
+                ? "linear-gradient(155deg, #1A0F08 0%, #111111 100%)"
+                : "#111111",
+              border: streak > 0 ? "1px solid #3A1F0A" : "1px solid #2A2A2A",
+            }}
+          >
+            <div className="flex items-center gap-1.5">
+              <Flame
+                size={16}
+                strokeWidth={2.5}
+                style={{ color: streak > 0 ? "var(--color-accent-2)" : "#5A5A60" }}
+                fill={streak > 0 ? "var(--color-accent-2)" : "none"}
+              />
+              <span className="label-caps" style={mutedText}>Streak</span>
+            </div>
+            <div>
+              <p
+                className="metric-num text-4xl"
+                style={{ color: streak > 0 ? "#FFFFFF" : "#5A5A60" }}
+              >
+                {streak}
+              </p>
+              <p className="mt-0.5 text-xs" style={mutedText}>
+                {streak === 1 ? "giorno" : "giorni"} attivi
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Upcoming sessions ──────────────────────── */}
+        <section>
+          <SectionLabel label="Prossime sessioni" />
+          <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:px-0">
+            {mockUpcoming(activeSport).map((u, i) => (
+              <UpcomingCard key={i} {...u} />
+            ))}
+          </div>
+        </section>
+
+        {/* ─── Coach CTA ──────────────────────────────── */}
+        <Link
+          to="/coach"
+          className="group flex items-center gap-4 rounded-2xl p-4 transition-all duration-200"
           style={{
-            background: "linear-gradient(135deg, oklch(0.20 0.08 295) 0%, oklch(0.14 0.05 295) 100%)",
-            border: "1px solid oklch(0.66 0.28 295 / 20%)",
+            background: "linear-gradient(135deg, #1F0807 0%, #111111 100%)",
+            border: "1px solid #3A1410",
           }}
         >
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
             style={{
-              background: "oklch(0.66 0.28 295)",
-              boxShadow: "0 0 16px oklch(0.66 0.28 295 / 40%)",
+              background: "var(--gradient-hero)",
+              boxShadow: "0 0 18px rgba(255, 59, 48, 0.4)",
             }}
           >
-            <Zap size={16} color="white" strokeWidth={2.5} />
+            <MessageCircle size={18} strokeWidth={2.5} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold">Parla con il Coach AI</p>
-            <p className="text-xs" style={{ color: "oklch(0.58 0.03 290)" }}>
-              Piano · Recupero · Nutrizione · Analisi
+            <p className="font-display text-base tracking-wider uppercase text-white">
+              Parla con il Coach
+            </p>
+            <p className="text-xs" style={mutedText}>
+              Piano · Recupero · Analisi · Nutrizione
             </p>
           </div>
-          <ChevronRight size={16} style={{ color: "var(--color-accent)" }} className="transition-transform group-hover:translate-x-0.5" />
-        </a>
+          <ChevronRight
+            size={18}
+            style={{ color: "var(--color-accent)" }}
+            className="transition-transform group-hover:translate-x-0.5"
+          />
+        </Link>
 
-        {/* ── Analytics ────────────────────────────── */}
-        <SectionLabel label="Analytics" className="mt-8" />
-        {loading || analytics === null ? (
-          <div className="space-y-3">
-            <Skeleton h={200} />
+        {/* ─── Recent activity ────────────────────────── */}
+        <section>
+          <SectionLabel label="Attività recenti" />
+          {loading ? (
             <Skeleton h={180} />
-            <Skeleton h={160} />
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <TrainingLoadCard attivita={analytics} />
-            <VolumeCard attivita={analytics} />
-            <AerobicoCard attivita={analytics} />
-          </div>
-        )}
-
-        <div className="h-10" />
+          ) : attivita.length === 0 ? (
+            <div className="rounded-2xl border border-dashed py-14 text-center" style={{ borderColor: "#2A2A2A" }}>
+              <Activity size={22} className="mx-auto mb-3" style={{ color: "#5A5A60" }} />
+              <p className="text-sm" style={mutedText}>Nessuna attività ancora</p>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-widest text-white"
+                style={{ background: "var(--color-accent)" }}
+              >
+                <Plus size={13} strokeWidth={3} /> Aggiungi
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-2xl" style={cardStyle}>
+              {attivita.slice(0, 5).map((a, i) => {
+                const info = sportInfo(a.sport_type);
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center gap-4 px-4 py-3.5"
+                    style={{ borderBottom: i < Math.min(4, attivita.length - 1) ? "1px solid #1A1A1A" : "none" }}
+                  >
+                    <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: info.color }} />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-display text-base tracking-wide uppercase">{info.label}</p>
+                      <p className="mt-0.5 metric-num text-xs" style={mutedText}>
+                        {a.distanza_km ? `${a.distanza_km.toFixed(1)} KM · ` : ""}
+                        {a.durata_min ?? "?"}′
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[11px] uppercase tracking-wider" style={mutedText}>
+                      {formatRelDay(a.data)}
+                    </span>
+                    {a.rpe ? (
+                      <span
+                        className="metric-num shrink-0 rounded-md px-2 py-1 text-xs"
+                        style={{ background: "#1A1A1A", color: "#FFFFFF" }}
+                      >
+                        {a.rpe}
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* ── FAB ────────────────────────────────────── */}
-      <button
-        onClick={() => setAddOpen(true)}
-        className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full transition-all duration-150 hover:scale-105 active:scale-95 md:bottom-8"
-        style={{
-          background: "oklch(0.66 0.28 295)",
-          boxShadow: "0 0 0 1px oklch(0.66 0.28 295 / 35%), 0 6px 24px oklch(0.66 0.28 295 / 45%)",
-        }}
-        aria-label="Aggiungi attività"
-      >
-        <Plus size={22} color="white" strokeWidth={2.5} />
-      </button>
+      {/* FAB removed in favor of Inizia tab */}
 
       {userId && (
         <AddActivityDialog
@@ -282,72 +303,170 @@ function HomePage() {
           onSaved={load}
         />
       )}
-
-      {editRpe && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
-          style={{ background: "oklch(0 0 0 / 60%)", backdropFilter: "blur(4px)" }}
-          onClick={() => setEditRpe(null)}
-        >
-          <div
-            className="w-full max-w-sm rounded-t-2xl p-6 sm:rounded-2xl"
-            style={{ background: "oklch(0.12 0.025 295)", border: "1px solid oklch(1 0 0 / 8%)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "oklch(0.5 0.02 290)" }}>
-              Sforzo percepito
-            </p>
-            <div className="my-5 text-center">
-              <span className="text-7xl font-black tabular-nums" style={{ color: "var(--color-accent)" }}>
-                {editRpe.value}
-              </span>
-              <span className="text-2xl font-black" style={{ color: "oklch(0.4 0.02 290)" }}>/10</span>
-            </div>
-            <input
-              type="range" min={1} max={10} value={editRpe.value}
-              onChange={(e) => setEditRpe({ ...editRpe, value: Number(e.target.value) })}
-              className="w-full accent-[var(--color-accent)]"
-            />
-            <div className="mt-1 flex justify-between text-[11px]" style={{ color: "oklch(0.45 0.02 290)" }}>
-              <span>Facile</span><span>Massimale</span>
-            </div>
-            <button
-              onClick={saveRpe}
-              className="mt-5 w-full rounded-xl py-3.5 text-sm font-bold tracking-wide text-white"
-              style={{ background: "oklch(0.66 0.28 295)" }}
-            >
-              Salva
-            </button>
-          </div>
-        </div>
-      )}
     </AppShell>
   );
 }
 
 /* ── Sub-components ───────────────────────────────────── */
 
-function SectionLabel({ label, className = "" }: { label: string; className?: string }) {
+const cardStyle = { background: "#111111", border: "1px solid #1F1F1F" } as const;
+const mutedText = { color: "#8E8E93" } as const;
+
+function SectionLabel({ label }: { label: string }) {
   return (
-    <div className={`mb-3 flex items-center gap-3 ${className}`}>
-      <span
-        className="text-[11px] font-semibold uppercase tracking-[0.12em]"
-        style={{ color: "oklch(0.48 0.02 290)" }}
-      >
-        {label}
-      </span>
-      <div className="flex-1 h-px" style={{ background: "oklch(1 0 0 / 5%)" }} />
+    <div className="mb-3 flex items-center gap-3">
+      <span className="label-caps" style={{ color: "#8E8E93" }}>{label}</span>
+      <div className="h-px flex-1" style={{ background: "#1A1A1A" }} />
     </div>
   );
 }
 
-function QuickStat({ value, label }: { value: string; label: string }) {
+function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-1 flex-col items-center gap-0.5 px-3">
-      <span className="text-xl font-black tabular-nums tracking-tight">{value}</span>
-      <span className="text-[10px] uppercase tracking-[0.1em]" style={{ color: "oklch(0.48 0.02 290)" }}>
-        {label}
-      </span>
+    <div>
+      <p className="metric-num text-lg leading-none">{value}</p>
+      <p className="mt-1 label-caps" style={mutedText}>{label}</p>
+    </div>
+  );
+}
+
+function WeeklyRing({ value, target, color }: { value: number; target: number; color: string }) {
+  const pct = Math.min(100, (value / target) * 100);
+  const r = 30;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative h-20 w-20">
+      <svg width="80" height="80" className="-rotate-90">
+        <circle cx="40" cy="40" r={r} stroke="#1F1F1F" strokeWidth="6" fill="none" />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          stroke={color}
+          strokeWidth="6"
+          strokeLinecap="round"
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={c - (c * pct) / 100}
+          style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1)", filter: `drop-shadow(0 0 6px ${color}88)` }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="metric-num text-base">{Math.round(pct)}%</span>
+      </div>
+    </div>
+  );
+}
+
+function HeroWorkoutCard({
+  sportColor,
+  sportLabel,
+  workout,
+}: {
+  sportColor: string;
+  sportLabel: string;
+  workout: { tipo: string; durata: number; volume: string; rpe: number; note: string };
+}) {
+  return (
+    <div
+      className="relative overflow-hidden rounded-3xl p-6"
+      style={{
+        background: `linear-gradient(155deg, ${sportColor}22 0%, #111111 55%, #0F0F0F 100%)`,
+        border: `1px solid ${sportColor}40`,
+      }}
+    >
+      {/* glow */}
+      <div
+        className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full"
+        style={{ background: sportColor, filter: "blur(80px)", opacity: 0.35 }}
+      />
+
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className="label-caps" style={{ color: sportColor }}>Prossimo · {sportLabel}</span>
+          <span className="label-caps rounded px-1.5 py-0.5" style={{ background: "#1A1A1A", color: "#FFFFFF" }}>
+            AI
+          </span>
+        </div>
+
+        <h2 className="mt-3 font-display text-4xl tracking-wider uppercase text-white">
+          {workout.tipo}
+        </h2>
+        <p className="mt-1.5 text-sm" style={mutedText}>{workout.note}</p>
+
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <Metric label="Durata" value={`${workout.durata}′`} />
+          <Metric label="Volume" value={workout.volume} />
+          <Metric label="Effort" value={`${workout.rpe}/10`} accent={sportColor} />
+        </div>
+
+        {/* Effort bar */}
+        <div className="mt-3">
+          <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "#1A1A1A" }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${workout.rpe * 10}%`,
+                background: `linear-gradient(90deg, ${sportColor}, var(--color-accent-2))`,
+                boxShadow: `0 0 12px ${sportColor}`,
+                transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)",
+              }}
+            />
+          </div>
+        </div>
+
+        <button
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-white animate-pulse-glow"
+          style={{ background: sportColor }}
+        >
+          <Play size={18} strokeWidth={3} fill="white" />
+          <span className="font-display text-lg tracking-[0.2em] uppercase">Start</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Metric({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="rounded-xl p-3" style={{ background: "rgba(0,0,0,0.35)", border: "1px solid #1F1F1F" }}>
+      <p className="label-caps" style={mutedText}>{label}</p>
+      <p className="metric-num mt-1.5 text-xl" style={{ color: accent ?? "#FFFFFF" }}>{value}</p>
+    </div>
+  );
+}
+
+function UpcomingCard({
+  giorno,
+  sport,
+  tipo,
+  durata,
+}: {
+  giorno: string;
+  sport: SportKey;
+  tipo: string;
+  durata: number;
+}) {
+  const info = sportInfo(sport);
+  const Icon = info.icon;
+  return (
+    <div
+      className="flex w-44 shrink-0 flex-col justify-between rounded-2xl p-4"
+      style={{ background: "#111111", border: "1px solid #1F1F1F", minHeight: 120 }}
+    >
+      <div className="flex items-center justify-between">
+        <span className="label-caps" style={mutedText}>{giorno}</span>
+        <span
+          className="flex h-6 w-6 items-center justify-center rounded-md"
+          style={{ background: `${info.color}22`, border: `1px solid ${info.color}40` }}
+        >
+          <Icon size={12} strokeWidth={2.5} style={{ color: info.color }} />
+        </span>
+      </div>
+      <div>
+        <p className="font-display text-base tracking-wider uppercase">{tipo}</p>
+        <p className="metric-num mt-1 text-xs" style={mutedText}>{durata}′</p>
+      </div>
     </div>
   );
 }
@@ -358,7 +477,7 @@ function Skeleton({ h }: { h: number }) {
       className="rounded-2xl"
       style={{
         height: h,
-        background: "linear-gradient(90deg, oklch(0.115 0.025 295) 0%, oklch(0.135 0.028 295) 50%, oklch(0.115 0.025 295) 100%)",
+        background: "linear-gradient(90deg, #111111 0%, #1A1A1A 50%, #111111 100%)",
         backgroundSize: "200% 100%",
         animation: "shimmer 1.8s linear infinite",
       }}
@@ -366,18 +485,28 @@ function Skeleton({ h }: { h: number }) {
   );
 }
 
-/* ── Pure functions ───────────────────────────────────── */
+/* ── Pure ─────────────────────────────────────────────── */
 
-function computeStato(attivita: Attivita[]) {
-  if (attivita.length === 0) return { color: "var(--color-accent)", label: "Pronto" };
-  const now = Date.now();
-  const oreUltima = (now - new Date(attivita[0].data).getTime()) / 3600000;
-  const ultimi4gg = attivita.filter((a) => (now - new Date(a.data).getTime()) / 86400000 <= 4);
-  if ((oreUltima < 24 && (attivita[0].rpe ?? 0) >= 8) || ultimi4gg.length >= 3)
-    return { color: "#ef4444", label: "Affaticato" };
-  if (oreUltima >= 48 && (attivita[0].rpe ?? 6) <= 6)
-    return { color: "#10b981", label: "Fresco" };
-  return { color: "#eab308", label: "In forma" };
+function computeStreak(attivita: Attivita[]): number {
+  if (attivita.length === 0) return 0;
+  const days = new Set(
+    attivita.map((a) => new Date(a.data).toISOString().slice(0, 10)),
+  );
+  let streak = 0;
+  const cursor = new Date();
+  // allow today OR yesterday as start
+  for (let i = 0; i < 365; i++) {
+    const key = cursor.toISOString().slice(0, 10);
+    if (days.has(key)) {
+      streak++;
+    } else if (i === 0) {
+      // today missing → check yesterday
+    } else {
+      break;
+    }
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
 }
 
 function formatRelDay(iso: string) {
@@ -390,9 +519,36 @@ function formatRelDay(iso: string) {
 
 function getGreeting() {
   const h = new Date().getHours();
-  if (h < 5)  return "Notte fonda";
+  if (h < 5) return "Notte fonda";
   if (h < 12) return "Buongiorno";
   if (h < 17) return "Buon pomeriggio";
   if (h < 21) return "Buona sera";
   return "Buona notte";
 }
+
+function mockNextWorkout(sport: SportKey) {
+  const map: Record<SportKey, { tipo: string; durata: number; volume: string; rpe: number; note: string }> = {
+    corsa: { tipo: "Interval 6×800", durata: 55, volume: "9 KM", rpe: 8, note: "Recupero 90″ tra ripetute · pace 3:55" },
+    ciclismo: { tipo: "Soglia 2×20′", durata: 90, volume: "45 KM", rpe: 7, note: "FTP 92% · cadenza 90 rpm" },
+    nuoto: { tipo: "Endurance Set", durata: 60, volume: "2.5 KM", rpe: 6, note: "10×100 stile · 20″ recupero" },
+    palestra: { tipo: "Lower Power", durata: 65, volume: "5×5", rpe: 8, note: "Squat 80% 1RM · panca 75%" },
+    trail: { tipo: "Salita lunga", durata: 110, volume: "16 KM · D+750", rpe: 7, note: "Cammina sopra 12% pendenza" },
+    hiit: { tipo: "AMRAP 20′", durata: 30, volume: "5 round", rpe: 9, note: "All out · 1′ rec tra blocchi" },
+    yoga: { tipo: "Mobility Flow", durata: 40, volume: "Full body", rpe: 3, note: "Focus anche e t-spine" },
+    altro: { tipo: "Sessione libera", durata: 45, volume: "—", rpe: 6, note: "Scegli tu intensità e durata" },
+  };
+  return map[sport];
+}
+
+function mockUpcoming(sport: SportKey) {
+  void sport;
+  return [
+    { giorno: "Mar", sport: "corsa" as SportKey, tipo: "Recovery", durata: 35 },
+    { giorno: "Mer", sport: "palestra" as SportKey, tipo: "Upper", durata: 50 },
+    { giorno: "Gio", sport: "ciclismo" as SportKey, tipo: "Endurance", durata: 75 },
+    { giorno: "Sab", sport: "trail" as SportKey, tipo: "Long Run", durata: 100 },
+  ];
+}
+
+// Quiet unused-import warnings (referenced in JSX in alternate states)
+void Target; void TrendingUp;

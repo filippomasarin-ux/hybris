@@ -6,6 +6,7 @@ import {
   Dumbbell,
   Zap,
   Flower2,
+  Mountain,
   Activity,
   Flag,
   Flame,
@@ -21,23 +22,25 @@ export type SportKey =
   | "palestra"
   | "hiit"
   | "yoga"
+  | "trail"
   | "altro";
 
 export const SPORTS: { key: SportKey; label: string; icon: LucideIcon; color: string }[] = [
-  { key: "corsa", label: "Corsa", icon: Footprints, color: "var(--color-sport-corsa)" },
-  { key: "ciclismo", label: "Ciclismo", icon: Bike, color: "var(--color-sport-ciclismo)" },
-  { key: "nuoto", label: "Nuoto", icon: Waves, color: "var(--color-sport-nuoto)" },
-  { key: "palestra", label: "Palestra", icon: Dumbbell, color: "var(--color-sport-palestra)" },
-  { key: "hiit", label: "HIIT", icon: Zap, color: "var(--color-sport-hiit)" },
-  { key: "yoga", label: "Yoga", icon: Flower2, color: "var(--color-sport-yoga)" },
-  { key: "altro", label: "Altro", icon: Activity, color: "var(--color-sport-altro)" },
+  { key: "corsa", label: "Corsa", icon: Footprints, color: "#FF3B30" },
+  { key: "ciclismo", label: "Ciclismo", icon: Bike, color: "#FF9500" },
+  { key: "nuoto", label: "Nuoto", icon: Waves, color: "#30A2FF" },
+  { key: "palestra", label: "Forza", icon: Dumbbell, color: "#BF5AF2" },
+  { key: "trail", label: "Trail", icon: Mountain, color: "#30D158" },
+  { key: "hiit", label: "HIIT", icon: Zap, color: "#FF3B30" },
+  { key: "yoga", label: "Yoga", icon: Flower2, color: "#BF5AF2" },
+  { key: "altro", label: "Altro", icon: Activity, color: "#8E8E93" },
 ];
 
 export const SPORT_MAP: Record<string, { label: string; color: string; icon: LucideIcon }> =
   Object.fromEntries(SPORTS.map((s) => [s.key, { label: s.label, color: s.color, icon: s.icon }]));
 
 export const sportInfo = (key?: string | null) =>
-  (key && SPORT_MAP[key]) || { label: "Attività", color: "var(--color-sport-altro)", icon: Activity };
+  (key && SPORT_MAP[key]) || { label: "Attività", color: "#8E8E93", icon: Activity };
 
 export const GIORNI = [
   { key: "lun", label: "Lun" },

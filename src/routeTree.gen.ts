@@ -15,7 +15,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
 import { Route as AuthenticatedProfiloRouteImport } from './routes/_authenticated/profilo'
+import { Route as AuthenticatedIniziaRouteImport } from './routes/_authenticated/inizia'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
 import { Route as AuthenticatedClubRouteImport } from './routes/_authenticated/club'
@@ -49,9 +51,19 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfiloRoute = AuthenticatedProfiloRouteImport.update({
   id: '/profilo',
   path: '/profilo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIniziaRoute = AuthenticatedIniziaRouteImport.update({
+  id: '/inizia',
+  path: '/inizia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
@@ -77,7 +89,9 @@ export interface FileRoutesByFullPath {
   '/club': typeof AuthenticatedClubRoute
   '/coach': typeof AuthenticatedCoachRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/inizia': typeof AuthenticatedIniziaRoute
   '/profilo': typeof AuthenticatedProfiloRoute
+  '/stats': typeof AuthenticatedStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/strava/callback': typeof StravaCallbackRoute
 }
@@ -88,7 +102,9 @@ export interface FileRoutesByTo {
   '/club': typeof AuthenticatedClubRoute
   '/coach': typeof AuthenticatedCoachRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/inizia': typeof AuthenticatedIniziaRoute
   '/profilo': typeof AuthenticatedProfiloRoute
+  '/stats': typeof AuthenticatedStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/strava/callback': typeof StravaCallbackRoute
 }
@@ -101,7 +117,9 @@ export interface FileRoutesById {
   '/_authenticated/club': typeof AuthenticatedClubRoute
   '/_authenticated/coach': typeof AuthenticatedCoachRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/inizia': typeof AuthenticatedIniziaRoute
   '/_authenticated/profilo': typeof AuthenticatedProfiloRoute
+  '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/api/chat': typeof ApiChatRoute
   '/strava/callback': typeof StravaCallbackRoute
 }
@@ -114,7 +132,9 @@ export interface FileRouteTypes {
     | '/club'
     | '/coach'
     | '/home'
+    | '/inizia'
     | '/profilo'
+    | '/stats'
     | '/api/chat'
     | '/strava/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -125,7 +145,9 @@ export interface FileRouteTypes {
     | '/club'
     | '/coach'
     | '/home'
+    | '/inizia'
     | '/profilo'
+    | '/stats'
     | '/api/chat'
     | '/strava/callback'
   id:
@@ -137,7 +159,9 @@ export interface FileRouteTypes {
     | '/_authenticated/club'
     | '/_authenticated/coach'
     | '/_authenticated/home'
+    | '/_authenticated/inizia'
     | '/_authenticated/profilo'
+    | '/_authenticated/stats'
     | '/api/chat'
     | '/strava/callback'
   fileRoutesById: FileRoutesById
@@ -195,11 +219,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/stats': {
+      id: '/_authenticated/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof AuthenticatedStatsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profilo': {
       id: '/_authenticated/profilo'
       path: '/profilo'
       fullPath: '/profilo'
       preLoaderRoute: typeof AuthenticatedProfiloRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inizia': {
+      id: '/_authenticated/inizia'
+      path: '/inizia'
+      fullPath: '/inizia'
+      preLoaderRoute: typeof AuthenticatedIniziaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
@@ -230,14 +268,18 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClubRoute: typeof AuthenticatedClubRoute
   AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedIniziaRoute: typeof AuthenticatedIniziaRoute
   AuthenticatedProfiloRoute: typeof AuthenticatedProfiloRoute
+  AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClubRoute: AuthenticatedClubRoute,
   AuthenticatedCoachRoute: AuthenticatedCoachRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedIniziaRoute: AuthenticatedIniziaRoute,
   AuthenticatedProfiloRoute: AuthenticatedProfiloRoute,
+  AuthenticatedStatsRoute: AuthenticatedStatsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -254,13 +296,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
