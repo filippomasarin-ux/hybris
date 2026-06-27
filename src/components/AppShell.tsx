@@ -1,18 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Play, MessageCircle, BarChart3, User } from "lucide-react";
+import { Home, Users, MessageCircle, BarChart3, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";
 
 type Tab = {
-  to: "/home" | "/inizia" | "/coach" | "/stats" | "/profilo";
+  to: "/home" | "/club" | "/coach" | "/stats" | "/profilo";
   label: string;
   icon: typeof Home;
-  highlight?: boolean;
 };
 
 const tabs: Tab[] = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/inizia", label: "Inizia", icon: Play, highlight: true },
+  { to: "/club", label: "Club", icon: Users },
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/stats", label: "Stats", icon: BarChart3 },
   { to: "/profilo", label: "Profilo", icon: User },
