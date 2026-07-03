@@ -1,22 +1,24 @@
-export function Logo({ className = "" }: { className?: string }) {
+export function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const iconSize = size === "sm" ? 28 : size === "lg" ? 48 : 36;
+  const textSize = size === "sm" ? "text-xl" : size === "lg" ? "text-4xl" : "text-2xl";
+
   return (
-    <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      <span
-        aria-hidden
-        className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl text-white"
-        style={{
-          background: "var(--gradient-hero)",
-          boxShadow: "0 0 16px rgba(255, 59, 48, 0.4)",
-        }}
+    <div className="flex items-center gap-2.5">
+      <svg
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 72 72"
+        fill="none"
+        aria-hidden="true"
       >
-        {/* Stylized speed mark */}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 17 L11 9 L13 13 L19 5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="19" cy="5" r="1.6" fill="white" />
-        </svg>
-      </span>
-      <span className="font-display text-2xl tracking-wider text-white">
-        RUNHUB<span style={{ color: "var(--color-accent)" }}>.AI</span>
+        <rect x="0" y="0" width="21" height="72" fill="#6A00FF" />
+        <rect x="51" y="0" width="21" height="72" fill="#B5179E" />
+        <polygon points="0,41 0,29 72,13 72,25" fill="#00F5D4" />
+      </svg>
+      <span
+        className={`font-display tracking-[.12em] text-white leading-none ${textSize}`}
+      >
+        HYBRIS
       </span>
     </div>
   );
