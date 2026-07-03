@@ -51,9 +51,9 @@
   --color-sport-altro: var(--sport-altro);
 
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 14px 40px rgba(255, 59, 48, 0.18);
-  --shadow-glow: 0 0 24px rgba(255, 59, 48, 0.45), 0 0 56px rgba(255, 149, 0, 0.18);
-  --shadow-glow-sm: 0 0 12px rgba(255, 59, 48, 0.4);
+  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 14px 40px rgba(106, 0, 255, 0.18);
+  --shadow-glow: 0 0 24px rgba(106, 0, 255, 0.45), 0 0 56px rgba(181, 23, 158, 0.18);
+  --shadow-glow-sm: 0 0 12px rgba(106, 0, 255, 0.4);
 }
 
 :root {
@@ -88,7 +88,7 @@
   --destructive: #FF453A;
   --destructive-foreground: #FFFFFF;
 
-  --warning: #FF9500;
+  --warning: #B5179E;
   --success: #30D158;
 
   --border: #2A2A2A;
@@ -129,8 +129,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.55), 0 8px 28px rgba(255, 59, 48, 0.4); }
-  50%      { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0), 0 8px 28px rgba(255, 59, 48, 0.55); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(106, 0, 255, 0.55), 0 8px 28px rgba(106, 0, 255, 0.4); }
+  50%      { box-shadow: 0 0 0 10px rgba(106, 0, 255, 0), 0 8px 28px rgba(106, 0, 255, 0.55); }
 }
 
 @keyframes shimmer {
@@ -244,8 +244,8 @@
   background: linear-gradient(
     90deg,
     #FFFFFF 0%,
-    #FF3B30 40%,
-    #FF9500 60%,
+    #6A00FF 40%,
+    #B5179E 60%,
     #FFFFFF 100%
   );
   background-size: 200% auto;
@@ -264,7 +264,7 @@
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF3B30;
+  background: #6A00FF;
 }
 
 /* Hide scrollbar on horizontal scrollers */
@@ -274,6 +274,6 @@
 /* ─── Selection ─────────────────────────────────────────── */
 
 ::selection {
-  background: rgba(255, 59, 48, 0.35);
+  background: rgba(106, 0, 255, 0.35);
   color: #FFFFFF;
 }
