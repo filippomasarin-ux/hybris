@@ -59,30 +59,31 @@
 :root {
   /* Dark Performance — true black */
   --background: #0A0A0A;
-  --foreground: #FFFFFF;
+  --foreground: #F7F7FF;
 
   --surface: #111111;
   --surface-2: #1A1A1A;
   --card: #111111;
-  --card-foreground: #FFFFFF;
+  --card-foreground: #F7F7FF;
 
   --popover: #141414;
-  --popover-foreground: #FFFFFF;
+  --popover-foreground: #F7F7FF;
 
-  --primary: #FF3B30;
+  --primary: #6A00FF;
   --primary-foreground: #FFFFFF;
 
   --secondary: #1A1A1A;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #F7F7FF;
 
   --muted: #1A1A1A;
   --muted-foreground: #8E8E93;
 
-  /* Adrenaline red — hero accent */
-  --accent: #FF3B30;
+  /* Hybris violet — hero accent */
+  --accent: #6A00FF;
   --accent-foreground: #FFFFFF;
-  /* Sprint orange — secondary accent */
-  --accent-2: #FF9500;
+  /* Hybris magenta — secondary accent */
+  --accent-2: #B5179E;
+  --cyan: #00F5D4;
 
   --destructive: #FF453A;
   --destructive-foreground: #FFFFFF;
@@ -92,21 +93,21 @@
 
   --border: #2A2A2A;
   --input: #1F1F1F;
-  --ring: #FF3B30;
+  --ring: #6A00FF;
 
-  /* Sport identity colors per brief */
-  --sport-corsa: #FF3B30;
-  --sport-ciclismo: #FF9500;
-  --sport-nuoto: #30A2FF;
+  /* Sport identity colors */
+  --sport-corsa: #6A00FF;
+  --sport-ciclismo: #B5179E;
+  --sport-nuoto: #00F5D4;
   --sport-palestra: #BF5AF2;
-  --sport-hiit: #FF3B30;
+  --sport-hiit: #6A00FF;
   --sport-yoga: #BF5AF2;
   --sport-trail: #30D158;
   --sport-altro: #8E8E93;
 
   --radius: 0.875rem;
 
-  --gradient-hero: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+  --gradient-hero: linear-gradient(135deg, #6A00FF 0%, #B5179E 100%);
   --gradient-surface: linear-gradient(180deg, #161616 0%, #0F0F0F 100%);
 }
 
