@@ -26,12 +26,12 @@ export type SportKey =
   | "altro";
 
 export const SPORTS: { key: SportKey; label: string; icon: LucideIcon; color: string }[] = [
-  { key: "corsa", label: "Corsa", icon: Footprints, color: "#FF3B30" },
-  { key: "ciclismo", label: "Ciclismo", icon: Bike, color: "#FF9500" },
-  { key: "nuoto", label: "Nuoto", icon: Waves, color: "#30A2FF" },
+  { key: "corsa", label: "Corsa", icon: Footprints, color: "#6A00FF" },
+  { key: "ciclismo", label: "Ciclismo", icon: Bike, color: "#B5179E" },
+  { key: "nuoto", label: "Nuoto", icon: Waves, color: "#00F5D4" },
   { key: "palestra", label: "Forza", icon: Dumbbell, color: "#BF5AF2" },
   { key: "trail", label: "Trail", icon: Mountain, color: "#30D158" },
-  { key: "hiit", label: "HIIT", icon: Zap, color: "#FF3B30" },
+  { key: "hiit", label: "HIIT", icon: Zap, color: "#6A00FF" },
   { key: "yoga", label: "Yoga", icon: Flower2, color: "#BF5AF2" },
   { key: "altro", label: "Altro", icon: Activity, color: "#8E8E93" },
 ];
