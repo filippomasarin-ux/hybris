@@ -281,8 +281,8 @@ function AuthPage() {
                   disabled={loading}
                   className="mt-2 w-full rounded-xl py-3 text-sm font-bold tracking-wide text-white transition-all duration-150 hover:brightness-110 disabled:opacity-50"
                   style={{
-                    background: "oklch(0.66 0.28 295)",
-                    boxShadow: "0 0 0 1px oklch(0.66 0.28 295 / 40%), 0 4px 20px oklch(0.66 0.28 295 / 35%)",
+                    background: "#6A00FF",
+                    boxShadow: "0 0 0 1px rgba(106,0,255,0.4), 0 4px 20px rgba(106,0,255,0.35)",
                   }}
                 >
                   {loading ? "Attendi…" : mode === "signup" ? "Crea account" : "Accedi"}
@@ -291,8 +291,9 @@ function AuthPage() {
             </div>
 
             <p className="mt-5 text-center text-xs" style={{ color: "oklch(0.4 0.015 290)" }}>
-              Continuando accetti i termini di servizio di RunHub AI.
+              Continuando accetti i termini di servizio di Hybris.
             </p>
+
           </div>
         </div>
       </div>
