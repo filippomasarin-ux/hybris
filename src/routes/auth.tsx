@@ -222,11 +222,12 @@ function AuthPage() {
           <div className="w-full max-w-sm" style={{ animation: "fade-up 0.45s cubic-bezier(0.16,1,0.3,1) both" }}>
             {/* Mobile-only logo */}
             <div className="mb-8 flex flex-col items-center gap-3 text-center lg:hidden">
-              <Logo />
-              <p className="text-sm" style={{ color: "oklch(0.5 0.02 290)" }}>
-                Il tuo coach personale, sempre con te.
+              <Logo size="lg" />
+              <p className="text-sm uppercase tracking-[0.25em]" style={{ color: "#8E8E93" }}>
+                Oltre ogni limite
               </p>
             </div>
+
 
             {/* Card */}
             <div
