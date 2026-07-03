@@ -199,25 +199,23 @@ function AuthPage() {
       <div className="relative mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 lg:grid-cols-2">
         {/* ─── Left: Branding ─────────────────────── */}
         <div className="hidden flex-col justify-between px-10 py-12 lg:flex xl:px-16">
-          <Logo />
+          <Logo size="md" />
           <div style={{ animation: "fade-up 0.5s cubic-bezier(0.16,1,0.3,1) both" }}>
-            <h1 className="font-display text-5xl tracking-wider uppercase xl:text-6xl">
-              Il tuo coach<br />
-              <span style={{
-                background: "linear-gradient(120deg, oklch(0.78 0.22 295), oklch(0.66 0.28 295))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}>personale</span>,<br />
-              sempre con te.
+            <h1 className="font-display text-6xl tracking-widest uppercase xl:text-7xl">
+              HYBRIS
             </h1>
+            <p className="mt-4 text-lg uppercase tracking-[0.3em]" style={{ color: "#8E8E93" }}>
+              Oltre ogni limite
+            </p>
             <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: "oklch(0.55 0.02 290)" }}>
-              Piani settimanali generati dall'AI, analisi avanzate del carico e una community di atleti per spingerti sempre più in alto.
+              Il coach AI multi-sport che ti sfida ogni giorno. Piani generati dall'AI, analisi del carico e una community di atleti.
             </p>
           </div>
           <p className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.4 0.015 290)" }}>
-            RunHub AI · v1.0
+            Hybris · v1.0
           </p>
         </div>
+
 
         {/* ─── Right: Form ────────────────────────── */}
         <div className="flex items-center justify-center px-4 py-12 sm:px-8">
