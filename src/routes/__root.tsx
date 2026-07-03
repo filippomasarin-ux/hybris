@@ -79,8 +79,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { title: "RunHub AI — Multi-sport AI coach" },
-      { name: "description", content: "RunHub AI: coach AI multi-sport per atleti. Corsa, ciclismo, nuoto, forza, trail." },
+      { title: "Hybris — Oltre ogni limite" },
+      { name: "description", content: "Hybris è il coach AI multi-sport che ti sfida ogni giorno." },
       { name: "theme-color", content: "#0A0A0A" },
     ],
     links: [

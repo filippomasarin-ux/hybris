@@ -4,7 +4,7 @@ import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
 type ChatRequestBody = { messages?: unknown };
 
-const SYSTEM_PROMPT = `Sei il coach di RunHub AI, un coach personale AI esperto in allenamento sportivo per atleti amatoriali (corsa, ciclismo, nuoto, palestra, HIIT, yoga).
+const SYSTEM_PROMPT = `Sei il coach di Hybris, un coach personale AI esperto in allenamento sportivo per atleti amatoriali (corsa, ciclismo, nuoto, palestra, HIIT, yoga).
 
 LINEE GUIDA:
 - Rispondi sempre in italiano, in modo chiaro, professionale ed empatico.

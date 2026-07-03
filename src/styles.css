@@ -51,62 +51,63 @@
   --color-sport-altro: var(--sport-altro);
 
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 14px 40px rgba(255, 59, 48, 0.18);
-  --shadow-glow: 0 0 24px rgba(255, 59, 48, 0.45), 0 0 56px rgba(255, 149, 0, 0.18);
-  --shadow-glow-sm: 0 0 12px rgba(255, 59, 48, 0.4);
+  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 14px 40px rgba(106, 0, 255, 0.18);
+  --shadow-glow: 0 0 24px rgba(106, 0, 255, 0.45), 0 0 56px rgba(181, 23, 158, 0.18);
+  --shadow-glow-sm: 0 0 12px rgba(106, 0, 255, 0.4);
 }
 
 :root {
   /* Dark Performance — true black */
   --background: #0A0A0A;
-  --foreground: #FFFFFF;
+  --foreground: #F7F7FF;
 
   --surface: #111111;
   --surface-2: #1A1A1A;
   --card: #111111;
-  --card-foreground: #FFFFFF;
+  --card-foreground: #F7F7FF;
 
   --popover: #141414;
-  --popover-foreground: #FFFFFF;
+  --popover-foreground: #F7F7FF;
 
-  --primary: #FF3B30;
+  --primary: #6A00FF;
   --primary-foreground: #FFFFFF;
 
   --secondary: #1A1A1A;
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #F7F7FF;
 
   --muted: #1A1A1A;
   --muted-foreground: #8E8E93;
 
-  /* Adrenaline red — hero accent */
-  --accent: #FF3B30;
+  /* Hybris violet — hero accent */
+  --accent: #6A00FF;
   --accent-foreground: #FFFFFF;
-  /* Sprint orange — secondary accent */
-  --accent-2: #FF9500;
+  /* Hybris magenta — secondary accent */
+  --accent-2: #B5179E;
+  --cyan: #00F5D4;
 
   --destructive: #FF453A;
   --destructive-foreground: #FFFFFF;
 
-  --warning: #FF9500;
+  --warning: #B5179E;
   --success: #30D158;
 
   --border: #2A2A2A;
   --input: #1F1F1F;
-  --ring: #FF3B30;
+  --ring: #6A00FF;
 
-  /* Sport identity colors per brief */
-  --sport-corsa: #FF3B30;
-  --sport-ciclismo: #FF9500;
-  --sport-nuoto: #30A2FF;
+  /* Sport identity colors */
+  --sport-corsa: #6A00FF;
+  --sport-ciclismo: #B5179E;
+  --sport-nuoto: #00F5D4;
   --sport-palestra: #BF5AF2;
-  --sport-hiit: #FF3B30;
+  --sport-hiit: #6A00FF;
   --sport-yoga: #BF5AF2;
   --sport-trail: #30D158;
   --sport-altro: #8E8E93;
 
   --radius: 0.875rem;
 
-  --gradient-hero: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+  --gradient-hero: linear-gradient(135deg, #6A00FF 0%, #B5179E 100%);
   --gradient-surface: linear-gradient(180deg, #161616 0%, #0F0F0F 100%);
 }
 
@@ -128,8 +129,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.55), 0 8px 28px rgba(255, 59, 48, 0.4); }
-  50%      { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0), 0 8px 28px rgba(255, 59, 48, 0.55); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(106, 0, 255, 0.55), 0 8px 28px rgba(106, 0, 255, 0.4); }
+  50%      { box-shadow: 0 0 0 10px rgba(106, 0, 255, 0), 0 8px 28px rgba(106, 0, 255, 0.55); }
 }
 
 @keyframes shimmer {
@@ -243,8 +244,8 @@
   background: linear-gradient(
     90deg,
     #FFFFFF 0%,
-    #FF3B30 40%,
-    #FF9500 60%,
+    #6A00FF 40%,
+    #B5179E 60%,
     #FFFFFF 100%
   );
   background-size: 200% auto;
@@ -263,7 +264,7 @@
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF3B30;
+  background: #6A00FF;
 }
 
 /* Hide scrollbar on horizontal scrollers */
@@ -273,6 +274,6 @@
 /* ─── Selection ─────────────────────────────────────────── */
 
 ::selection {
-  background: rgba(255, 59, 48, 0.35);
+  background: rgba(106, 0, 255, 0.35);
   color: #FFFFFF;
 }

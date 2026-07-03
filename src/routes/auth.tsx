@@ -199,36 +199,35 @@ function AuthPage() {
       <div className="relative mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 lg:grid-cols-2">
         {/* ─── Left: Branding ─────────────────────── */}
         <div className="hidden flex-col justify-between px-10 py-12 lg:flex xl:px-16">
-          <Logo />
+          <Logo size="md" />
           <div style={{ animation: "fade-up 0.5s cubic-bezier(0.16,1,0.3,1) both" }}>
-            <h1 className="font-display text-5xl tracking-wider uppercase xl:text-6xl">
-              Il tuo coach<br />
-              <span style={{
-                background: "linear-gradient(120deg, oklch(0.78 0.22 295), oklch(0.66 0.28 295))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}>personale</span>,<br />
-              sempre con te.
+            <h1 className="font-display text-6xl tracking-widest uppercase xl:text-7xl">
+              HYBRIS
             </h1>
+            <p className="mt-4 text-lg uppercase tracking-[0.3em]" style={{ color: "#8E8E93" }}>
+              Oltre ogni limite
+            </p>
             <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: "oklch(0.55 0.02 290)" }}>
-              Piani settimanali generati dall'AI, analisi avanzate del carico e una community di atleti per spingerti sempre più in alto.
+              Il coach AI multi-sport che ti sfida ogni giorno. Piani generati dall'AI, analisi del carico e una community di atleti.
             </p>
           </div>
           <p className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.4 0.015 290)" }}>
-            RunHub AI · v1.0
+            Hybris · v1.0
           </p>
         </div>
+
 
         {/* ─── Right: Form ────────────────────────── */}
         <div className="flex items-center justify-center px-4 py-12 sm:px-8">
           <div className="w-full max-w-sm" style={{ animation: "fade-up 0.45s cubic-bezier(0.16,1,0.3,1) both" }}>
             {/* Mobile-only logo */}
             <div className="mb-8 flex flex-col items-center gap-3 text-center lg:hidden">
-              <Logo />
-              <p className="text-sm" style={{ color: "oklch(0.5 0.02 290)" }}>
-                Il tuo coach personale, sempre con te.
+              <Logo size="lg" />
+              <p className="text-sm uppercase tracking-[0.25em]" style={{ color: "#8E8E93" }}>
+                Oltre ogni limite
               </p>
             </div>
+
 
             {/* Card */}
             <div
@@ -282,8 +281,8 @@ function AuthPage() {
                   disabled={loading}
                   className="mt-2 w-full rounded-xl py-3 text-sm font-bold tracking-wide text-white transition-all duration-150 hover:brightness-110 disabled:opacity-50"
                   style={{
-                    background: "oklch(0.66 0.28 295)",
-                    boxShadow: "0 0 0 1px oklch(0.66 0.28 295 / 40%), 0 4px 20px oklch(0.66 0.28 295 / 35%)",
+                    background: "#6A00FF",
+                    boxShadow: "0 0 0 1px rgba(106,0,255,0.4), 0 4px 20px rgba(106,0,255,0.35)",
                   }}
                 >
                   {loading ? "Attendi…" : mode === "signup" ? "Crea account" : "Accedi"}
@@ -292,8 +291,9 @@ function AuthPage() {
             </div>
 
             <p className="mt-5 text-center text-xs" style={{ color: "oklch(0.4 0.015 290)" }}>
-              Continuando accetti i termini di servizio di RunHub AI.
+              Continuando accetti i termini di servizio di Hybris.
             </p>
+
           </div>
         </div>
       </div>
