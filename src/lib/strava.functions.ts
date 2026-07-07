@@ -210,7 +210,7 @@ export const stravaSync = createServerFn({ method: "POST" })
     });
 
     const { error } = await supabase.from("attivita").upsert(rows, {
-      onConflict: "strava_activity_id,user_id",
+      onConflict: "strava_activity_id",
       ignoreDuplicates: false,
     });
 
