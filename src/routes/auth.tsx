@@ -311,7 +311,20 @@ function AuthPage() {
               {loading ? "Attendi…" : mode === "signup" ? "Crea account" : "Accedi"}
             </button>
           </form>
+
+          <p className="mt-5 text-center" style={{ color: "#8E8E93", fontSize: "13px" }}>
+            {mode === "signup" ? "Hai già un account?" : "Non hai un account?"}{" "}
+            <button
+              type="button"
+              onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+              className="font-semibold underline-offset-4 hover:underline"
+              style={{ color: "#6A00FF" }}
+            >
+              {mode === "signup" ? "Accedi" : "Registrati"}
+            </button>
+          </p>
         </div>
+
 
         <p className="mt-5 text-center" style={{ color: "#5A5A60", fontSize: "11px", fontWeight: 400 }}>
           Continuando accetti i Termini di servizio di Hybris
