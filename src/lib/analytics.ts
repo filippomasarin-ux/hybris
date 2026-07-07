@@ -141,7 +141,7 @@ export function calcolaEfficienzaAerobica(attivita: AttivitaForAnalytics[]): Pun
   return attivita
     .filter(
       (a) =>
-        a.sport_type === "run" &&
+        a.sport_type === "corsa" &&
         a.rpe != null &&
         a.rpe >= 4 &&
         a.rpe <= 6 &&
