@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "sync-lock": "npm install --package-lock-only --ignore-scripts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
