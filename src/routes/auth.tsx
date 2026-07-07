@@ -240,26 +240,14 @@ function AuthPage() {
             boxShadow: "0 0 0 1px rgba(106,0,255,0.15), 0 24px 48px rgba(0,0,0,0.6)",
           }}
         >
-          {/* Tabs */}
-          <div className="mb-6 flex gap-1 rounded-xl p-1" style={{ background: "#1A1A1A" }}>
-            {(["login", "signup"] as const).map((m) => {
-              const active = mode === m;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMode(m)}
-                  className="flex-1 rounded-lg py-2 text-sm font-semibold transition-all duration-150"
-                  style={{
-                    background: active ? "#6A00FF" : "transparent",
-                    color: active ? "#FFFFFF" : "#8E8E93",
-                  }}
-                >
-                  {m === "login" ? "Accedi" : "Registrati"}
-                </button>
-              );
-            })}
-          </div>
+          {/* Title */}
+          <h2
+            className="mb-6 text-center font-black tracking-tight"
+            style={{ color: "#F7F7FF", fontSize: "20px" }}
+          >
+            {mode === "signup" ? "Crea il tuo account" : "Bentornato"}
+          </h2>
+
 
           {/* Google */}
           <button
