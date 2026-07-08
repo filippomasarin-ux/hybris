@@ -40,6 +40,13 @@ export function WeeklyPlanCard({ attivita, sportFiltro }: { attivita?: AttivitaF
   const [generating, setGenerating] = useState(false);
   const [selected, setSelected] = useState(0);
 
+  const tsbData = useMemo(() => {
+    if (!attivita || attivita.length === 0) return null;
+    const { tsb } = calcolaCarico(attivita);
+    const info = labelTsb(tsb);
+    return { tsb, info, col: TSB_COLORI[info.colore] };
+  }, [attivita]);
+
   useEffect(() => {
     fetchPiano()
       .then((p) => {
@@ -104,13 +111,6 @@ export function WeeklyPlanCard({ attivita, sportFiltro }: { attivita?: AttivitaF
 
   const stato = STATO_STYLE[piano.stato_forma_rilevato] ?? STATO_STYLE.normale;
   const carico = CARICO_STYLE[piano.carico_settimana] ?? CARICO_STYLE.medio;
-
-  const tsbData = useMemo(() => {
-    if (!attivita || attivita.length === 0) return null;
-    const { tsb } = calcolaCarico(attivita);
-    const info = labelTsb(tsb);
-    return { tsb, info, col: TSB_COLORI[info.colore] };
-  }, [attivita]);
 
   const warningCarico =
     tsbData && tsbData.tsb < -10 && piano.stato_forma_rilevato === "fresco"
