@@ -142,7 +142,43 @@ async function refreshStravaToken(
   return res.json() as Promise<{ access_token: string; refresh_token: string; expires_at: number }>;
 }
 
-/** Syncs the last 90 days of Strava activities into attivita */
+const STRAVA_SYNC_WINDOW_DAYS = 365;
+const STRAVA_PAGE_SIZE = 200;
+const STRAVA_MAX_PAGES = 5;
+
+async function fetchStravaActivities(
+  accessToken: string,
+): Promise<Array<{
+  id: number;
+  type: string;
+  start_date_local: string;
+  elapsed_time: number;
+  distance: number;
+  average_heartrate?: number;
+  average_speed: number;
+  calories?: number;
+}>> {
+  const after = Math.floor(Date.now() / 1000) - STRAVA_SYNC_WINDOW_DAYS * 24 * 60 * 60;
+  const all: Awaited<ReturnType<typeof fetchStravaActivities>> = [];
+
+  for (let page = 1; page <= STRAVA_MAX_PAGES; page++) {
+    const res = await fetch(
+      `https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=${STRAVA_PAGE_SIZE}&page=${page}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+
+    if (!res.ok) throw new Error("Errore recupero attività da Strava");
+
+    const batch = (await res.json()) as typeof all;
+    all.push(...batch);
+
+    if (batch.length < STRAVA_PAGE_SIZE) break;
+  }
+
+  return all;
+}
+
+/** Syncs up to the last year of Strava activities into attivita */
 export const stravaSync = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -172,24 +208,7 @@ export const stravaSync = createServerFn({ method: "POST" })
       } as Record<string, unknown>).eq("id", userId);
     }
 
-    const after = Math.floor(Date.now() / 1000) - 90 * 24 * 60 * 60;
-    const res = await fetch(
-      `https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=100`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    );
-
-    if (!res.ok) throw new Error("Errore recupero attività da Strava");
-
-    const activities = await res.json() as Array<{
-      id: number;
-      type: string;
-      start_date_local: string;
-      elapsed_time: number;
-      distance: number;
-      average_heartrate?: number;
-      average_speed: number;
-      calories?: number;
-    }>;
+    const activities = await fetchStravaActivities(accessToken);
 
     if (activities.length === 0) return { imported: 0 };
 

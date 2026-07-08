@@ -457,7 +457,7 @@ function StravaRow({
 
       {connected && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Sincronizza per importare le ultime 90 giorni di attività.
+          Sincronizza per importare fino a 1 anno di attività.
         </p>
       )}
     </div>
