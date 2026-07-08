@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import { generaPianoSettimanale, getPianoCorrente, type PianoSettimanale } from "@/lib/piani.functions";
 import { sportInfo } from "@/lib/sports";
 import { calcolaCarico, labelTsb, TSB_COLORI, type AttivitaForAnalytics } from "@/lib/analytics";
+import type { ProgressoSport } from "@/lib/obiettivi-settimanali";
 
-type Piano = PianoSettimanale & { settimana_inizio: string };
+type Piano = PianoSettimanale & { settimana_inizio: string; progresso: ProgressoSport[] };
 
 const GIORNI_BREVI = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 
@@ -174,6 +175,36 @@ export function WeeklyPlanCard({ attivita, sportFiltro }: { attivita?: AttivitaF
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{warningCarico}</span>
+        </div>
+      )}
+
+      {piano.progresso.length > 0 && (
+        <div className="mb-3 space-y-2 rounded-xl border border-border p-3">
+          <p className="label-caps text-muted-foreground">Obiettivi settimana</p>
+          {piano.progresso.map((p) => {
+            const info = sportInfo(p.sport);
+            const pct = p.target > 0 ? Math.min(100, (p.fatto / p.target) * 100) : 0;
+            const unitaLabel = p.unita === "km" ? "km" : "h";
+            return (
+              <div key={p.sport}>
+                <div className="mb-1 flex items-center justify-between text-[11px]">
+                  <span className="font-medium">{info.label}</span>
+                  <span className="text-muted-foreground tabular-nums">
+                    {p.fatto}
+                    {unitaLabel} / {p.target}
+                    {unitaLabel}
+                    {p.rimanente > 0 ? ` · mancano ${p.rimanente}${unitaLabel}` : " · obiettivo raggiunto"}
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${pct}%`, background: info.color, transition: "width 0.4s ease" }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

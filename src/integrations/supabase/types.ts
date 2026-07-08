@@ -358,13 +358,20 @@ export type Database = {
           id: string
           limitazioni_fisiche: string | null
           nome: string | null
+          obiettivi: string[] | null
+          obiettivi_pesati: Json | null
           obiettivo_dettaglio: string | null
           obiettivo_tipo: string | null
           onboarding_completato: boolean | null
           ruolo: string | null
           sport_primario: string | null
           sport_secondari: string[] | null
+          strava_access_token: string | null
+          strava_athlete_id: number | null
+          strava_refresh_token: string | null
+          strava_token_expires_at: number | null
           updated_at: string | null
+          volume_target: Json | null
         }
         Insert: {
           anni_esperienza?: number | null
@@ -376,13 +383,20 @@ export type Database = {
           id: string
           limitazioni_fisiche?: string | null
           nome?: string | null
+          obiettivi?: string[] | null
+          obiettivi_pesati?: Json | null
           obiettivo_dettaglio?: string | null
           obiettivo_tipo?: string | null
           onboarding_completato?: boolean | null
           ruolo?: string | null
           sport_primario?: string | null
           sport_secondari?: string[] | null
+          strava_access_token?: string | null
+          strava_athlete_id?: number | null
+          strava_refresh_token?: string | null
+          strava_token_expires_at?: number | null
           updated_at?: string | null
+          volume_target?: Json | null
         }
         Update: {
           anni_esperienza?: number | null
@@ -394,13 +408,20 @@ export type Database = {
           id?: string
           limitazioni_fisiche?: string | null
           nome?: string | null
+          obiettivi?: string[] | null
+          obiettivi_pesati?: Json | null
           obiettivo_dettaglio?: string | null
           obiettivo_tipo?: string | null
           onboarding_completato?: boolean | null
           ruolo?: string | null
           sport_primario?: string | null
           sport_secondari?: string[] | null
+          strava_access_token?: string | null
+          strava_athlete_id?: number | null
+          strava_refresh_token?: string | null
+          strava_token_expires_at?: number | null
           updated_at?: string | null
+          volume_target?: Json | null
         }
         Relationships: []
       }

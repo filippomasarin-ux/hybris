@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SPORTS, GIORNI, OBIETTIVI, type SportKey } from "@/lib/sports";
 import { Logo } from "@/components/Logo";
+import { formatObiettivo, obiettivoDefault, type ObiettivoVolume, type VolumeTarget } from "@/lib/obiettivi-settimanali";
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
@@ -20,21 +21,13 @@ type FormState = {
   obiettivi: string[];
   obiettivo_dettaglio: string;
   pesi: Record<string, number>;
-  volume_target: Record<string, number>;
+  volume_target: VolumeTarget;
   giorni_disponibili: string[];
   giorni_count: number;
   limitazioni_fisiche: string;
 };
 
 const TOTAL_STEPS = 6;
-const DEFAULT_VOLUME = 60;
-
-function fmtMin(m: number): string {
-  if (m < 60) return `${m}min`;
-  const h = Math.floor(m / 60);
-  const rem = m % 60;
-  return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
-}
 
 function normalizeWeights(keys: string[], pesi: Record<string, number>): Record<string, number> {
   if (keys.length === 0) return {};
@@ -92,7 +85,7 @@ function OnboardingPage() {
       const primario = next.includes(f.sport_primario as SportKey) ? f.sport_primario : (next[0] ?? "");
       const volume_target = { ...f.volume_target };
       if (has) delete volume_target[s];
-      else volume_target[s] = DEFAULT_VOLUME;
+      else volume_target[s] = obiettivoDefault(s);
       return { ...f, sport_secondari: next, sport_primario: primario, volume_target };
     });
   };
@@ -121,8 +114,14 @@ function OnboardingPage() {
     setForm((f) => ({ ...f, pesi: { ...f.pesi, [key]: value } }));
   };
 
-  const updateVolume = (sport: string, value: number) => {
-    setForm((f) => ({ ...f, volume_target: { ...f.volume_target, [sport]: value } }));
+  const updateVolume = (sport: string, patch: Partial<ObiettivoVolume>) => {
+    setForm((f) => ({
+      ...f,
+      volume_target: {
+        ...f.volume_target,
+        [sport]: { ...(f.volume_target[sport] ?? obiettivoDefault(sport)), ...patch },
+      },
+    }));
   };
 
   const canNext = (() => {
@@ -376,7 +375,9 @@ function OnboardingPage() {
               {form.sport_secondari.map((k) => {
                 const s = SPORTS.find((x) => x.key === k)!;
                 const Icon = s.icon;
-                const vol = form.volume_target[k] ?? DEFAULT_VOLUME;
+                const obiettivo = form.volume_target[k] ?? obiettivoDefault(k);
+                const isKm = obiettivo.unita === "km";
+                const range = isKm ? { min: 5, max: 150, step: 5 } : { min: 0.5, max: 15, step: 0.5 };
                 return (
                   <div key={k} className="rounded-xl border border-border bg-surface p-5">
                     <div className="mb-3 flex items-center justify-between">
@@ -389,23 +390,36 @@ function OnboardingPage() {
                         </span>
                         <span className="font-semibold">{s.label}</span>
                       </div>
-                      <span className="text-xl font-black tabular-nums tracking-tight" style={{ color: s.color }}>
-                        {fmtMin(vol)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-black tabular-nums tracking-tight" style={{ color: s.color }}>
+                          {formatObiettivo(obiettivo)}
+                        </span>
+                        <div className="flex overflow-hidden rounded-full border border-border text-[10px] font-semibold uppercase">
+                          {(["km", "ore"] as const).map((u) => (
+                            <button
+                              key={u}
+                              type="button"
+                              onClick={() => updateVolume(k, { unita: u, valore: u === "km" ? 20 : 2 })}
+                              className="px-2 py-1"
+                              style={
+                                obiettivo.unita === u
+                                  ? { background: s.color, color: "#fff" }
+                                  : { color: "var(--color-muted-foreground)" }
+                              }
+                            >
+                              {u}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     <input
-                      type="range" min={30} max={600} step={15}
-                      value={vol}
-                      onChange={(e) => updateVolume(k, Number(e.target.value))}
+                      type="range" min={range.min} max={range.max} step={range.step}
+                      value={obiettivo.valore}
+                      onChange={(e) => updateVolume(k, { valore: Number(e.target.value) })}
                       className="w-full"
                       style={{ accentColor: s.color }}
                     />
-                    <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
-                      <span>30min</span>
-                      <span>2h</span>
-                      <span>5h</span>
-                      <span>10h</span>
-                    </div>
                   </div>
                 );
               })}
@@ -497,14 +511,14 @@ function OnboardingPage() {
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {form.sport_secondari.map((k) => {
                     const s = SPORTS.find((x) => x.key === k)!;
-                    const vol = form.volume_target[k] ?? DEFAULT_VOLUME;
+                    const obiettivo = form.volume_target[k] ?? obiettivoDefault(k);
                     return (
                       <span
                         key={k}
                         className="rounded-full px-2.5 py-0.5 text-xs font-medium"
                         style={{ backgroundColor: `color-mix(in oklch, ${s.color} 14%, transparent)`, color: s.color }}
                       >
-                        {s.label} · {fmtMin(vol)}/sett
+                        {s.label} · {formatObiettivo(obiettivo)}/sett
                       </span>
                     );
                   })}

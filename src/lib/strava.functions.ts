@@ -146,9 +146,7 @@ const STRAVA_SYNC_WINDOW_DAYS = 365;
 const STRAVA_PAGE_SIZE = 200;
 const STRAVA_MAX_PAGES = 5;
 
-async function fetchStravaActivities(
-  accessToken: string,
-): Promise<Array<{
+type StravaActivity = {
   id: number;
   type: string;
   start_date_local: string;
@@ -157,9 +155,11 @@ async function fetchStravaActivities(
   average_heartrate?: number;
   average_speed: number;
   calories?: number;
-}>> {
+};
+
+async function fetchStravaActivities(accessToken: string): Promise<StravaActivity[]> {
   const after = Math.floor(Date.now() / 1000) - STRAVA_SYNC_WINDOW_DAYS * 24 * 60 * 60;
-  const all: Awaited<ReturnType<typeof fetchStravaActivities>> = [];
+  const all: StravaActivity[] = [];
 
   for (let page = 1; page <= STRAVA_MAX_PAGES; page++) {
     const res = await fetch(

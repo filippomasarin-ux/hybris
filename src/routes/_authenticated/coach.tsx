@@ -152,10 +152,11 @@ function CoachChat({
   return (
     <AppShell>
       <div className="flex h-[100dvh] flex-col md:h-screen">
-        <header className="flex items-center justify-between border-b border-border px-5 py-3.5">
+        <header className="flex items-start justify-between pt-7 pb-5 animate-fade-up">
           <div>
-            <h1 className="text-base font-semibold leading-tight">Coach AI</h1>
-            <p className="text-xs text-muted-foreground">Conosce i tuoi dati di allenamento</p>
+            <p className="label-caps" style={{ color: "var(--color-accent)" }}>Coach AI</p>
+            <h1 className="mt-1 font-display text-4xl tracking-wider uppercase">Coach</h1>
+            <p className="mt-1 text-xs text-muted-foreground">Conosce i tuoi dati di allenamento</p>
           </div>
           {!isEmpty && (
             <button
@@ -168,15 +169,15 @@ function CoachChat({
           )}
         </header>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 pb-32 md:pb-6">
-          <div className="mx-auto max-w-2xl mb-4">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto pb-32 md:pb-6">
+          <div className="mb-4">
             <WeeklyPlanCard attivita={analytics} />
           </div>
 
           {isEmpty ? (
             <EmptyState onPick={submit} />
           ) : (
-            <div className="mx-auto max-w-2xl space-y-6">
+            <div className="space-y-6">
               {messages.map((m) => (
                 <MessageBubble key={m.id} message={m} />
               ))}
@@ -190,13 +191,13 @@ function CoachChat({
           )}
         </div>
 
-        <div className="fixed inset-x-0 bottom-16 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:static md:bottom-0">
+        <div className="fixed inset-x-0 bottom-16 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:static md:bottom-0 md:px-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               submit();
             }}
-            className="mx-auto flex max-w-2xl items-end gap-2 rounded-2xl border border-border bg-surface p-2 shadow-card focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20"
+            className="flex items-end gap-2 rounded-2xl border border-border bg-surface p-2 shadow-card focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20"
           >
             <textarea
               ref={inputRef}

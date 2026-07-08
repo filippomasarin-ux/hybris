@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { LogOut, ChevronRight, RefreshCw, Unlink, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getStravaAuthUrl, getStravaStatus, stravaDisconnect, stravaSync } from "@/lib/strava.functions";
+import { formatObiettivo, obiettivoDefault, type ObiettivoVolume, type VolumeTarget } from "@/lib/obiettivi-settimanali";
 
 export const Route = createFileRoute("/_authenticated/profilo")({
   ssr: false,
@@ -26,17 +27,8 @@ type Profile = {
   obiettivo_dettaglio: string | null;
   obiettivi: string[] | null;
   obiettivi_pesati: ObiettivoConPeso[] | null;
-  volume_target: Record<string, number> | null;
+  volume_target: VolumeTarget | null;
 };
-
-const DEFAULT_VOLUME = 60;
-
-function fmtMin(m: number): string {
-  if (m < 60) return `${m}min`;
-  const h = Math.floor(m / 60);
-  const rem = m % 60;
-  return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
-}
 
 function normalizeWeights(keys: string[], pesi: Record<string, number>): Record<string, number> {
   if (keys.length === 0) return {};
@@ -165,15 +157,16 @@ function ProfiloPage() {
     setP((prev) => prev ? { ...prev, obiettivi_pesati } : prev);
   };
 
-  const updateVolumeTarget = async (sport: string, value: number) => {
+  const updateVolumeTarget = async (sport: string, patch: Partial<ObiettivoVolume>) => {
     if (!p) return;
-    const next = { ...(p.volume_target ?? {}), [sport]: value };
+    const corrente = p.volume_target?.[sport] ?? obiettivoDefault(sport);
+    const next = { ...(p.volume_target ?? {}), [sport]: { ...corrente, ...patch } };
     const { error } = await supabase
       .from("profiles")
       .update({ volume_target: next })
       .eq("id", p.id);
     if (error) return;
-    setP((prev) => prev ? { ...prev, volume_target: next } : prev);
+    setP((prev) => (prev ? { ...prev, volume_target: next } : prev));
   };
 
   const obiettivi = p?.obiettivi ?? (p?.obiettivo_tipo ? [p.obiettivo_tipo] : []);
@@ -187,14 +180,19 @@ function ProfiloPage() {
     ? (OBIETTIVI.find((o) => o.key === obiettivi[0])?.titolo ?? obiettivi[0])
     : `${obiettivi.length} obiettivi`;
 
+  const sportsPraticati = Array.from(
+    new Set([p?.sport_primario, ...(p?.sport_secondari ?? [])].filter((s): s is string => !!s)),
+  );
+
   const volumeLabel = (() => {
-    const sports = p?.sport_secondari ?? [];
-    if (sports.length === 0) return "Non impostato";
-    return sports.map((k) => {
-      const vol = p?.volume_target?.[k] ?? DEFAULT_VOLUME;
-      const s = SPORTS.find((x) => x.key === k);
-      return `${s?.label ?? k} ${fmtMin(vol)}`;
-    }).join(" · ");
+    if (sportsPraticati.length === 0) return "Non impostato";
+    return sportsPraticati
+      .map((k) => {
+        const vol = p?.volume_target?.[k] ?? obiettivoDefault(k);
+        const s = SPORTS.find((x) => x.key === k);
+        return `${s?.label ?? k} ${formatObiettivo(vol)}`;
+      })
+      .join(" · ");
   })();
 
   return (
@@ -343,11 +341,13 @@ function ProfiloPage() {
               </button>
             </div>
             <div className="space-y-5">
-              {(p.sport_secondari ?? []).map((k) => {
+              {sportsPraticati.map((k) => {
                 const s = SPORTS.find((x) => x.key === k);
                 if (!s) return null;
                 const Icon = s.icon;
-                const vol = p.volume_target?.[k] ?? DEFAULT_VOLUME;
+                const obiettivo = p.volume_target?.[k] ?? obiettivoDefault(k);
+                const isKm = obiettivo.unita === "km";
+                const range = isKm ? { min: 5, max: 150, step: 5 } : { min: 0.5, max: 15, step: 0.5 };
                 return (
                   <div key={k}>
                     <div className="mb-2 flex items-center justify-between">
@@ -360,12 +360,34 @@ function ProfiloPage() {
                         </span>
                         <span className="text-sm font-medium">{s.label}</span>
                       </div>
-                      <span className="text-sm font-bold tabular-nums" style={{ color: s.color }}>{fmtMin(vol)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold tabular-nums" style={{ color: s.color }}>
+                          {formatObiettivo(obiettivo)}
+                        </span>
+                        <div className="flex overflow-hidden rounded-full border border-border text-[10px] font-semibold uppercase">
+                          {(["km", "ore"] as const).map((u) => (
+                            <button
+                              key={u}
+                              onClick={() =>
+                                updateVolumeTarget(k, { unita: u, valore: u === "km" ? 20 : 2 })
+                              }
+                              className="px-2 py-1"
+                              style={
+                                obiettivo.unita === u
+                                  ? { background: s.color, color: "#fff" }
+                                  : { color: "var(--color-muted-foreground)" }
+                              }
+                            >
+                              {u}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     <input
-                      type="range" min={30} max={600} step={15}
-                      defaultValue={vol}
-                      onChange={(e) => updateVolumeTarget(k, Number(e.target.value))}
+                      type="range" min={range.min} max={range.max} step={range.step}
+                      value={obiettivo.valore}
+                      onChange={(e) => updateVolumeTarget(k, { valore: Number(e.target.value) })}
                       className="w-full"
                       style={{ accentColor: s.color }}
                     />

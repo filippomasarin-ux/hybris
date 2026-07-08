@@ -3,6 +3,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createGeminiProvider } from "@/lib/ai-gateway.server";
+import { calcolaProgressoSettimanale, type ProgressoSport, type VolumeTarget } from "@/lib/obiettivi-settimanali";
 
 const GiornoSchema = z.object({
   giorno: z.string(),
@@ -42,6 +43,76 @@ function dataGiorno(inizio: string, offset: number): string {
   const d = new Date(inizio);
   d.setUTCDate(d.getUTCDate() + offset);
   return d.toISOString().slice(0, 10);
+}
+
+function indiceOggi(): number {
+  return (new Date().getUTCDay() + 6) % 7;
+}
+
+function zonaDaRpeSport(sport: string, rpe: number): string {
+  if (sport === "palestra") return "Forza";
+  if (sport === "hiit") return "HIIT";
+  if (sport === "yoga") return "Mobilità";
+  if (rpe <= 3) return "Z1 recupero";
+  if (rpe <= 6) return "Z2 aerobico";
+  if (rpe <= 8) return "Z3 soglia";
+  return "Z4 VO2max";
+}
+
+/**
+ * I giorni già trascorsi questa settimana devono riflettere ciò che è realmente
+ * successo (da attivita), non l'ipotesi generata dall'AI/fallback. Oggi resta
+ * invariato se non ci sono ancora attività registrate; i giorni futuri restano
+ * quelli proposti (adattati agli obiettivi di volume residui).
+ */
+function riconciliaGiorniTrascorsi(
+  giorni: GiornoPiano[],
+  attivitaSettimana: Array<{
+    data: string;
+    sport_type: string | null;
+    durata_min: number | null;
+    distanza_km: number | null;
+    rpe: number | null;
+  }>,
+  oggiIdx: number,
+): GiornoPiano[] {
+  return giorni.map((g, i) => {
+    if (i > oggiIdx) return g;
+
+    const svolte = attivitaSettimana.filter((a) => a.data === g.data);
+    if (svolte.length === 0) {
+      if (i === oggiIdx) return g;
+      return {
+        ...g,
+        sport: "altro",
+        titolo: "Riposo",
+        durata_min: 0,
+        distanza_km: undefined,
+        intensita_rpe: 0,
+        zona_intensita: "Riposo",
+        descrizione: "Nessuna attività registrata questo giorno.",
+        riposo: true,
+        motivo_riposo: "Nessuna attività registrata",
+      };
+    }
+
+    const durata_min = svolte.reduce((s, a) => s + (a.durata_min ?? 0), 0);
+    const distanza_km = svolte.reduce((s, a) => s + (a.distanza_km ?? 0), 0);
+    const rpeMedio = Math.round(svolte.reduce((s, a) => s + (a.rpe ?? 5), 0) / svolte.length);
+    const sport = svolte[0].sport_type ?? "altro";
+    return {
+      ...g,
+      sport,
+      titolo: svolte.length > 1 ? `${svolte.length} attività svolte` : "Attività svolta",
+      durata_min,
+      distanza_km: distanza_km > 0 ? Math.round(distanza_km * 100) / 100 : undefined,
+      intensita_rpe: rpeMedio,
+      zona_intensita: zonaDaRpeSport(sport, rpeMedio),
+      descrizione: "Sessione già completata e registrata dalle tue attività.",
+      riposo: false,
+      motivo_riposo: undefined,
+    };
+  });
 }
 
 function calcolaStatoForma(
@@ -197,11 +268,11 @@ export const generaPianoSettimanale = createServerFn({ method: "POST" })
     const inizio = lunediCorrente();
     const fine = new Date(new Date(inizio).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [{ data: profile }, { data: attivitaRaw }] = await Promise.all([
+    const [{ data: profile }, { data: attivitaRaw }, { data: attivitaSettimanaRaw }] = await Promise.all([
       supabase
         .from("profiles")
         .select(
-          "nome,eta,anni_esperienza,sport_primario,sport_secondari,obiettivo_tipo,obiettivo_dettaglio,giorni_disponibili,limitazioni_fisiche,club_id",
+          "nome,eta,anni_esperienza,sport_primario,sport_secondari,obiettivo_tipo,obiettivo_dettaglio,giorni_disponibili,limitazioni_fisiche,club_id,volume_target",
         )
         .eq("id", userId)
         .maybeSingle(),
@@ -211,9 +282,18 @@ export const generaPianoSettimanale = createServerFn({ method: "POST" })
         .eq("user_id", userId)
         .order("data", { ascending: false })
         .limit(21),
+      supabase
+        .from("attivita")
+        .select("sport_type,data,durata_min,distanza_km,rpe")
+        .eq("user_id", userId)
+        .gte("data", inizio),
     ]);
 
     const attivita = attivitaRaw ?? [];
+    const attivitaSettimana = attivitaSettimanaRaw ?? [];
+    const volumeTarget = (profile?.volume_target ?? {}) as VolumeTarget;
+    const oggiIdx = indiceOggi();
+    const progresso = calcolaProgressoSettimanale(attivitaSettimana, volumeTarget, inizio);
 
     // appuntamenti club: tabella non presente nello schema attuale, manteniamo vuoto
     const appuntamenti: Array<{ titolo: string; data_ora: string; tipo: string }> = [];
@@ -261,7 +341,20 @@ APPUNTAMENTI CLUB QUESTA SETTIMANA:
 ${appuntamenti.length > 0 ? appuntamenti.map((a) => `- ${new Date(a.data_ora).toLocaleDateString("it-IT", { weekday: "long" })} · ${a.tipo}: ${a.titolo}`).join("\n") : "Nessuno"}
 ${appuntamenti.length > 0 ? "IMPORTANTE: gli appuntamenti club devono essere integrati nel piano come sessioni (non aggiunti come giorni extra). Sostituisci la sessione pianificata per quel giorno con l'appuntamento club." : ""}
 
-Settimana che inizia il ${inizio} (lunedì). Le date dei 7 giorni devono partire da ${inizio} in ordine cronologico.`;
+OBIETTIVI SETTIMANALI DI VOLUME (impostati dall'atleta):
+${
+  progresso.length > 0
+    ? progresso
+        .map(
+          (p) =>
+            `- ${p.sport}: target ${p.target}${p.unita === "km" ? "km" : "h"} · già fatto questa settimana ${p.fatto}${p.unita === "km" ? "km" : "h"} · residuo ${p.rimanente}${p.unita === "km" ? "km" : "h"}`,
+        )
+        .join("\n")
+    : "Nessun obiettivo di volume impostato dall'atleta."
+}
+
+Settimana che inizia il ${inizio} (lunedì). Le date dei 7 giorni devono partire da ${inizio} in ordine cronologico.
+Oggi è ${GIORNI_IT[oggiIdx]} (giorno ${oggiIdx + 1} di 7): i giorni da ${GIORNI_IT[oggiIdx]} incluso in poi sono quelli che conta dimensionare bene, perché quelli precedenti sono già trascorsi e verranno sostituiti automaticamente con le attività realmente svolte prima di mostrare il piano — non serve che tu li stimi con precisione.`;
 
     const system = `Sei un coach esperto di endurance e strength training. Genera un piano settimanale personalizzato in italiano.
 
@@ -275,6 +368,7 @@ REGOLE ASSOLUTE:
 - Se stato_forma = "fresco": puoi inserire 2 sessioni con RPE >= 8.
 - Mai 2 sessioni consecutive con RPE >= 8.
 - Mai 2 sessioni di forza pesante sullo stesso gruppo muscolare a meno di 72h.
+- Se per uno sport è indicato un OBIETTIVO SETTIMANALE DI VOLUME con residuo > 0, dimensiona durata_min/distanza_km delle sessioni di quello sport nei giorni ancora da svolgere in modo da avvicinarti al residuo entro domenica, distribuendolo tra le sessioni rimanenti di quello sport senza violare le altre regole di recupero. Se il residuo è già a 0 o negativo, non aggiungere ulteriore volume di quello sport oltre a quanto già pianificato.
 
 REGOLE PER OBIETTIVO:
 - gara: periodizzazione specifica — sessione lunga weekend, una sessione di qualità (ritmo gara / intervalli), resto facile. Includi la gara/evento se specificato nelle date.
@@ -311,6 +405,11 @@ OUTPUT: JSON con schema esatto fornito. descrizione: max 40 parole, specifica e 
       piano = pianoFallback(inizio, sportPrimario, giorniDisp, statoForma.stato);
     }
 
+    piano = {
+      ...piano,
+      giorni: riconciliaGiorniTrascorsi(piano.giorni, attivitaSettimana, oggiIdx),
+    };
+
     const { error } = await supabase
       .from("piani_settimanali")
       .upsert(
@@ -324,7 +423,7 @@ OUTPUT: JSON con schema esatto fornito. descrizione: max 40 parole, specifica e 
       );
     if (error) throw new Error(error.message);
 
-    return { settimana_inizio: inizio, ...piano };
+    return { settimana_inizio: inizio, ...piano, progresso };
   });
 
 export const getPianoCorrente = createServerFn({ method: "GET" })
@@ -332,13 +431,24 @@ export const getPianoCorrente = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const inizio = lunediCorrente();
-    const { data } = await supabase
-      .from("piani_settimanali")
-      .select("settimana_inizio, giorni, note")
-      .eq("user_id", userId)
-      .eq("settimana_inizio", inizio)
-      .maybeSingle();
+    const [{ data }, { data: profile }, { data: attivitaSettimanaRaw }] = await Promise.all([
+      supabase
+        .from("piani_settimanali")
+        .select("settimana_inizio, giorni, note")
+        .eq("user_id", userId)
+        .eq("settimana_inizio", inizio)
+        .maybeSingle(),
+      supabase.from("profiles").select("volume_target").eq("id", userId).maybeSingle(),
+      supabase
+        .from("attivita")
+        .select("sport_type,data,durata_min,distanza_km,rpe")
+        .eq("user_id", userId)
+        .gte("data", inizio),
+    ]);
     if (!data) return null;
+
+    const volumeTarget = (profile?.volume_target ?? {}) as VolumeTarget;
+    const progresso = calcolaProgressoSettimanale(attivitaSettimanaRaw ?? [], volumeTarget, inizio);
     const giorni = data.giorni as PianoSettimanale["giorni"];
     // Stato/carico non sono persistiti separatamente: li ricaviamo dai giorni se assenti
     const giorniAllenamento = giorni.filter((g) => !g.riposo);
@@ -355,5 +465,6 @@ export const getPianoCorrente = createServerFn({ method: "GET" })
       stato_forma_rilevato: stato,
       carico_settimana: carico,
       giorni,
+      progresso,
     };
   });
