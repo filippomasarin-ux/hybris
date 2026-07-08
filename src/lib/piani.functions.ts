@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { createGeminiProvider } from "@/lib/ai-gateway.server";
 
 const GiornoSchema = z.object({
   giorno: z.string(),
@@ -191,8 +191,8 @@ export const generaPianoSettimanale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    if (!key) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
 
     const inizio = lunediCorrente();
     const fine = new Date(new Date(inizio).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -297,8 +297,8 @@ OUTPUT: JSON con schema esatto fornito. descrizione: max 40 parole, specifica e 
 
     let piano: PianoSettimanale;
     try {
-      const gateway = createLovableAiGatewayProvider(key);
-      const model = gateway("google/gemini-3-flash-preview");
+      const gemini = createGeminiProvider(key);
+      const model = gemini("gemini-2.5-flash");
       const { experimental_output } = await generateText({
         model,
         system,

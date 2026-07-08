@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { createGeminiProvider } from "@/lib/ai-gateway.server";
 
 type ChatRequestBody = { messages?: unknown };
 
@@ -92,15 +92,15 @@ export const Route = createFileRoute("/api/chat")({
         const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
         if (!token) return new Response("Unauthorized", { status: 401 });
 
-        const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        if (!key) return new Response("Missing GOOGLE_GENERATIVE_AI_API_KEY", { status: 500 });
 
         const uiMessages = messages as UIMessage[];
         const lastUser = [...uiMessages].reverse().find((m) => m.role === "user") ?? null;
 
         const userContext = await loadUserContext(token);
-        const gateway = createLovableAiGatewayProvider(key);
-        const model = gateway("google/gemini-3-flash-preview");
+        const gemini = createGeminiProvider(key);
+        const model = gemini("gemini-2.5-flash");
 
         const result = streamText({
           model,

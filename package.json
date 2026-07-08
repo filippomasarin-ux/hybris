@@ -13,7 +13,7 @@
     "sync-lock": "npm install --package-lock-only --ignore-scripts"
   },
   "dependencies": {
-    "@ai-sdk/openai-compatible": "^2.0.48",
+    "@ai-sdk/google": "^3.0.89",
     "@ai-sdk/react": "^3.0.201",
     "@hookform/resolvers": "^5.2.2",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
